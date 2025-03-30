@@ -1,0 +1,73 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+.env
+.venv
+env/
+venv/
+ENV/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# PDM
+.pdm-python
+.pdm.toml
+.pdm-lock.toml
+.pdm.lock
+.pdm.lock.toml
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+.coverage.*
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+
+# Ruff
+.ruff_cache/
+
+# FastAPI specific
+logs/
+*.log
+.env.local
+.env.*.local
+
+# Project specific
+.qodo
+
+*/__pycache__/*
+
+*/.pytest_cache/*
+
+*/.ruff_cache/*
+

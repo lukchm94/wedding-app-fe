@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+
+{% block title %}Miejsce - Wesele Agaty i Łukasza{% endblock %}
+
+{% block additional_styles %}
+        .image-banner {
+            position: relative;
+            width: 100%;
+            height: {{ image_banner_height }}px;
+            overflow: hidden;
+        }
+        .image-banner img {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0;
+            transition: opacity {{ image_transition_duration }}s ease-in-out;
+        }
+        .image-banner img.active {
+            opacity: 1;
+        }
+        .nav-button {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: {{ image_banner_button_bg }};
+            color: {{ image_banner_button_color }};
+            padding: 1rem;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+        .nav-button:hover {
+            background-color: {{ image_banner_button_hover_bg }};
+            color: {{ image_banner_button_hover_color }};
+        }
+        .nav-button.prev {
+            left: 1rem;
+        }
+        .nav-button.next {
+            right: 1rem;
+        }
+        /* Mobile menu styles */
+        .mobile-menu {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.98);
+            z-index: 40;
+            padding-top: 4rem;
+        }
+        .mobile-menu.active {
+            display: block;
+        }
+        .mobile-menu a {
+            display: block;
+            padding: 1rem;
+            text-align: center;
+            font-size: 1.25rem;
+            color: #4B5563;
+            border-bottom: 1px solid #E5E7EB;
+        }
+        .mobile-menu a:hover {
+            background-color: #F3F4F6;
+            color: #1D4ED8;
+        }
+        .mobile-menu a.active {
+            color: #1D4ED8;
+            background-color: #F3F4F6;
+        }
+        .hamburger {
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+        .hamburger span {
+            display: block;
+            width: 25px;
+            height: 3px;
+            background-color: #4B5563;
+            margin: 5px 0;
+            transition: all 0.3s ease;
+        }
+        .hamburger.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+        .hamburger.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -6px);
+        }
+{% endblock %}
+
+{% block content %}
+            <!-- Image Banner -->
+            <div class="image-banner mb-12">
+                {% for image in images %}
+                    <img src="/static/images/maleszowa/{{ image }}" alt="Żurawie Gniazdo" {% if loop.first %}class="active"{% endif %}>
+                {% endfor %}
+                <button class="nav-button prev" onclick="prevImage()">❮</button>
+                <button class="nav-button next" onclick="nextImage()">❯</button>
+            </div>
+
+            <!-- Instagram Link -->
+            <div class="max-w-4xl mx-auto text-center mb-12">
+                <a href="{{ instagram_url }}" target="_blank" class="inline-block">
+                    <img src="/static/icons/ig.png" alt="Instagram" class="h-16 w-16 mx-auto hover:opacity-80 transition duration-300">
+                </a>
+                <p class="mt-4 text-gray-600">Instagram: <a href="{{ instagram_url }}" target="_blank" class="text-blue-500 hover:text-blue-700">{{ instagram_url }}</a></p>
+            </div>
+
+            <!-- Google Maps Link -->
+            <div class="max-w-4xl mx-auto text-center mb-12">
+                <a href="{{ google_maps_url }}" target="_blank" class="inline-block">
+                    <img src="/static/icons/google_maps.png" alt="Google Maps" class="h-16 w-16 mx-auto hover:opacity-80 transition duration-300">
+                </a>
+                <p class="mt-4 text-gray-600">Google Maps: <a href="{{ google_maps_url }}" target="_blank" class="text-blue-500 hover:text-blue-700">Jak dojechać</a></p>
+            </div>
+{% endblock %}
+
+{% block additional_scripts %}
+        const rotationTime = {{ image_rotation_time }} * 1000; // Convert to milliseconds
+        const images = document.querySelectorAll('.image-banner img:not(.nav-button)');
+        let currentIndex = 0;
+        let rotationInterval;
+
+        function showImage(index) {
+            // Remove active class from current image
+            images[currentIndex].classList.remove('active');
+            
+            // Update index
+            currentIndex = index;
+            
+            // Add active class to new image
+            images[currentIndex].classList.add('active');
+        }
+
+        function nextImage() {
+            showImage((currentIndex + 1) % images.length);
+        }
+
+        function prevImage() {
+            showImage((currentIndex - 1 + images.length) % images.length);
+        }
+
+        function startRotation() {
+            rotationInterval = setInterval(nextImage, rotationTime);
+        }
+
+        function stopRotation() {
+            clearInterval(rotationInterval);
+        }
+
+        // Start rotation
+        startRotation();
+
+        // Stop rotation when hovering over the banner
+        document.querySelector('.image-banner').addEventListener('mouseenter', stopRotation);
+        document.querySelector('.image-banner').addEventListener('mouseleave', startRotation);
+
+        // Mobile menu functionality
+        function toggleMobileMenu() {
+            const mobileMenu = document.getElementById('mobileMenu');
+            const hamburger = document.querySelector('.hamburger');
+            mobileMenu.classList.toggle('active');
+            hamburger.classList.toggle('active');
+        }
+
+        // Close mobile menu when clicking a link
+        document.querySelectorAll('.mobile-menu a').forEach(link => {
+            link.addEventListener('click', () => {
+                const mobileMenu = document.getElementById('mobileMenu');
+                const hamburger = document.querySelector('.hamburger');
+                mobileMenu.classList.remove('active');
+                hamburger.classList.remove('active');
+            });
+        });
+{% endblock %} 

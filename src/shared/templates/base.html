@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Wesele Agaty i Łukasza{% endblock %}</title>
+    <link rel="icon" type="image/png" href="/static/icons/icon.png">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        /* Mobile menu styles */
+        .mobile-menu {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.98);
+            z-index: 40;
+            padding-top: 4rem;
+        }
+        .mobile-menu.active {
+            display: block;
+        }
+        .mobile-menu a {
+            display: block;
+            padding: 1rem;
+            text-align: center;
+            font-size: 1.25rem;
+            color: #4B5563;
+            border-bottom: 1px solid #E5E7EB;
+        }
+        .mobile-menu a:hover {
+            background-color: #F3F4F6;
+            color: #1D4ED8;
+        }
+        .mobile-menu a.active {
+            color: #1D4ED8;
+            background-color: #F3F4F6;
+        }
+        .hamburger {
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+        .hamburger span {
+            display: block;
+            width: 25px;
+            height: 3px;
+            background-color: #4B5563;
+            margin: 5px 0;
+            transition: all 0.3s ease;
+        }
+        .hamburger.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+        .hamburger.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -6px);
+        }
+        {% block additional_styles %}{% endblock %}
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <!-- Navigation Banner -->
+    <nav class="bg-white shadow-lg fixed w-full top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="flex justify-between items-center">
+                <div>
+                    <a href="/" class="flex items-center py-4" onclick="window.location.reload();">
+                        <img src="/static/icons/home.png" alt="Wesele Agaty i Łukasza" class="h-8 w-8">
+                    </a>
+                </div>
+                <!-- Desktop Navigation -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="/plan-wesela" class="py-4 px-4 text-gray-500 hover:text-blue-500 hover:bg-gray-100 rounded-lg transition duration-300">Plan Wesela</a>
+                    <a href="/location" class="py-4 px-4 {% if request.url.path == '/miejsce' %}text-blue-500{% else %}text-gray-500 hover:text-blue-500{% endif %} hover:bg-gray-100 rounded-lg transition duration-300">Miejsce</a>
+                    <a href="/lista-gosci" class="py-4 px-4 text-gray-500 hover:text-blue-500 hover:bg-gray-100 rounded-lg transition duration-300">Lista Gości</a>
+                    <a href="/rsvp" class="py-4 px-4 text-gray-500 hover:text-blue-500 hover:bg-gray-100 rounded-lg transition duration-300">Potwierdź obecność</a>
+                    <a href="/lista-prezentow" class="py-4 px-4 text-gray-500 hover:text-blue-500 hover:bg-gray-100 rounded-lg transition duration-300">Lista Prezentów</a>
+                    <a href="/zdjecia" class="py-4 px-4 text-gray-500 hover:text-blue-500 hover:bg-gray-100 rounded-lg transition duration-300">Zdjęcia</a>
+                </div>
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden">
+                    <div class="hamburger" onclick="toggleMobileMenu()">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu" id="mobileMenu">
+        <a href="/plan-wesela" class="py-4 px-4 text-gray-500 hover:text-blue-500 hover:bg-gray-100">Plan Wesela</a>
+        <a href="/location" class="py-4 px-4 {% if request.url.path == '/location' %}text-blue-500 bg-gray-100{% else %}text-gray-500 hover:text-blue-500 hover:bg-gray-100{% endif %}">Miejsce</a>
+        <a href="/lista-gosci" class="py-4 px-4 text-gray-500 hover:text-blue-500 hover:bg-gray-100">Lista Gości</a>
+        <a href="/rsvp" class="py-4 px-4 text-gray-500 hover:text-blue-500 hover:bg-gray-100">Potwierdź obecność</a>
+        <a href="/lista-prezentow" class="py-4 px-4 text-gray-500 hover:text-blue-500 hover:bg-gray-100">Lista Prezentów</a>
+        <a href="/zdjecia" class="py-4 px-4 text-gray-500 hover:text-blue-500 hover:bg-gray-100">Zdjęcia</a>
+    </div>
+
+    <!-- Add padding to account for fixed header -->
+    <div class="pt-16">
+        <main class="container mx-auto px-4 py-8">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    <footer class="bg-white shadow-lg mt-8">
+        <div class="container mx-auto px-4 py-6">
+            <p class="text-center text-gray-600">© 2024 Wesele Agaty i Łukasza. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile menu functionality
+        function toggleMobileMenu() {
+            const mobileMenu = document.getElementById('mobileMenu');
+            const hamburger = document.querySelector('.hamburger');
+            mobileMenu.classList.toggle('active');
+            hamburger.classList.toggle('active');
+        }
+
+        // Close mobile menu when clicking a link
+        document.querySelectorAll('.mobile-menu a').forEach(link => {
+            link.addEventListener('click', () => {
+                const mobileMenu = document.getElementById('mobileMenu');
+                const hamburger = document.querySelector('.hamburger');
+                mobileMenu.classList.remove('active');
+                hamburger.classList.remove('active');
+            });
+        });
+        {% block additional_scripts %}{% endblock %}
+    </script>
+</body>
+</html> 
