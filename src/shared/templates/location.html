@@ -124,60 +124,62 @@
 {% endblock %}
 
 {% block additional_scripts %}
-        const rotationTime = {{ image_rotation_time }} * 1000; // Convert to milliseconds
-        const images = document.querySelectorAll('.image-banner img:not(.nav-button)');
-        let currentIndex = 0;
-        let rotationInterval;
+        <script>
+            const rotationTime = {{ image_rotation_time }} * 1000; // Convert to milliseconds
+            const images = document.querySelectorAll('.image-banner img:not(.nav-button)');
+            let currentIndex = 0;
+            let rotationInterval;
 
-        function showImage(index) {
-            // Remove active class from current image
-            images[currentIndex].classList.remove('active');
-            
-            // Update index
-            currentIndex = index;
-            
-            // Add active class to new image
-            images[currentIndex].classList.add('active');
-        }
+            function showImage(index) {
+                // Remove active class from current image
+                images[currentIndex].classList.remove('active');
+                
+                // Update index
+                currentIndex = index;
+                
+                // Add active class to new image
+                images[currentIndex].classList.add('active');
+            }
 
-        function nextImage() {
-            showImage((currentIndex + 1) % images.length);
-        }
+            function nextImage() {
+                showImage((currentIndex + 1) % images.length);
+            }
 
-        function prevImage() {
-            showImage((currentIndex - 1 + images.length) % images.length);
-        }
+            function prevImage() {
+                showImage((currentIndex - 1 + images.length) % images.length);
+            }
 
-        function startRotation() {
-            rotationInterval = setInterval(nextImage, rotationTime);
-        }
+            function startRotation() {
+                rotationInterval = setInterval(nextImage, rotationTime);
+            }
 
-        function stopRotation() {
-            clearInterval(rotationInterval);
-        }
+            function stopRotation() {
+                clearInterval(rotationInterval);
+            }
 
-        // Start rotation
-        startRotation();
+            // Start rotation
+            startRotation();
 
-        // Stop rotation when hovering over the banner
-        document.querySelector('.image-banner').addEventListener('mouseenter', stopRotation);
-        document.querySelector('.image-banner').addEventListener('mouseleave', startRotation);
+            // Stop rotation when hovering over the banner
+            document.querySelector('.image-banner').addEventListener('mouseenter', stopRotation);
+            document.querySelector('.image-banner').addEventListener('mouseleave', startRotation);
 
-        // Mobile menu functionality
-        function toggleMobileMenu() {
-            const mobileMenu = document.getElementById('mobileMenu');
-            const hamburger = document.querySelector('.hamburger');
-            mobileMenu.classList.toggle('active');
-            hamburger.classList.toggle('active');
-        }
-
-        // Close mobile menu when clicking a link
-        document.querySelectorAll('.mobile-menu a').forEach(link => {
-            link.addEventListener('click', () => {
+            // Mobile menu functionality
+            function toggleMobileMenu() {
                 const mobileMenu = document.getElementById('mobileMenu');
                 const hamburger = document.querySelector('.hamburger');
-                mobileMenu.classList.remove('active');
-                hamburger.classList.remove('active');
+                mobileMenu.classList.toggle('active');
+                hamburger.classList.toggle('active');
+            }
+
+            // Close mobile menu when clicking a link
+            document.querySelectorAll('.mobile-menu a').forEach(link => {
+                link.addEventListener('click', () => {
+                    const mobileMenu = document.getElementById('mobileMenu');
+                    const hamburger = document.querySelector('.hamburger');
+                    mobileMenu.classList.remove('active');
+                    hamburger.classList.remove('active');
+                });
             });
-        });
+        </script>
 {% endblock %} 

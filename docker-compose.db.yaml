@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: wedding_db
+    environment:
+      MYSQL_ROOT_PASSWORD: wedding_password
+      MYSQL_DATABASE: wedding_db
+      MYSQL_USER: wedding_user
+      MYSQL_PASSWORD: wedding_password
+    ports:
+      - "3380:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "wedding_user", "-pwedding_password"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - wedding_network
+
+networks:
+  wedding_network:
+    driver: bridge
+
+volumes:
+  mysql_data: 
