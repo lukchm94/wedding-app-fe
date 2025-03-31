@@ -1,10 +1,4 @@
 [project]
-name = "wedding-app-fe"
-version = "0.1.0"
-description = "Default template for PDM package"
-authors = [
-    {name = "Lukasz Ch", email = "lukchm94@gmail.com"},
-]
 dependencies = [
     "fastapi>=0.109.0",
     "uvicorn>=0.27.0",
@@ -15,15 +9,28 @@ dependencies = [
     "sqlalchemy>=2.0.31",
     "pymysql>=1.1.0",
     "python-multipart>=0.0.9",
+    "alembic>=1.11.0",
+    "typing-extensions>=4.5.0", # Added typing-extensions for Python < 3.12
+    "mypy>=1.5.0",
+    "pytest>=7.4.0",
 ]
+name = "wedding-app-fe"
+version = "0.1.0"
+description = "Default template for PDM package"
+authors = [{ name = "Lukasz Ch", email = "lukchm94@gmail.com" }]
 requires-python = ">=3.13"
 
 readme = "README.md"
-license = {text = "MIT"}
-
+license = { text = "MIT" }
 
 [tool.pdm]
 distribution = false
 
 [tool.pdm.scripts]
-dev = "uvicorn src.shared.server.app:app --host 0.0.0.0 --port 8000 --reload"
+dev = "python -m src --port 8000 --reload"
+start_db = 'docker-compose -f docker-compose.db.yaml up -d'
+stop_db = 'docker-compose -f docker-compose.db.yaml down'
+migrate = 'alembic upgrade head'
+migrate_downgrade = 'alembic downgrade -1'
+migrate_init = 'alembic init alembic'
+mypy = 'mypy src'

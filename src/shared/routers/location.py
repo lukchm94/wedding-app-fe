@@ -14,7 +14,6 @@ router = APIRouter(prefix="/location", tags=["location"])
 async def location(request: Request):
     images_dir = Path("src/shared/static/images/maleszowa")
     images = sorted([f.name for f in images_dir.glob("*.png")])
-
     return templates.TemplateResponse(
         "location.html",
         {

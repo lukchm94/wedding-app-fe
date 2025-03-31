@@ -76,6 +76,7 @@
 {% endblock %}
 
 {% block additional_scripts %}
+    <script>
         // Update countdown every second
         function updateCountdown() {
             const now = new Date();
@@ -96,4 +97,5 @@
         // Update immediately and then every second
         updateCountdown();
         setInterval(updateCountdown, 1000);
+    </script>
 {% endblock %} 

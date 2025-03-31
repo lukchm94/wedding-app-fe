@@ -2,9 +2,9 @@ from pydantic_settings import BaseSettings
 
 
 class ImageBannerSettings(BaseSettings):
-    IMAGE_ROTATION_TIME: int = 5
+    IMAGE_ROTATION_TIME: int = 10
     IMAGE_BANNER_HEIGHT: int = 400
-    IMAGE_TRANSITION_DURATION: int = 1
+    IMAGE_TRANSITION_DURATION: int = 5
     IMAGE_BANNER_BUTTON_BG: str = "rgba(255, 255, 255, 0.7)"
     IMAGE_BANNER_BUTTON_HOVER_BG: str = "rgba(255, 255, 255, 0.9)"
     IMAGE_BANNER_BUTTON_COLOR: str = "#4B5563"

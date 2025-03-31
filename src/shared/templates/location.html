@@ -15,10 +15,12 @@
             height: 100%;
             object-fit: cover;
             opacity: 0;
+            position: absolute;
             transition: opacity {{ image_transition_duration }}s ease-in-out;
         }
         .image-banner img.active {
             opacity: 1;
+            position: relative;
         }
         .nav-button {
             position: absolute;
@@ -124,62 +126,66 @@
 {% endblock %}
 
 {% block additional_scripts %}
-        <script>
-            const rotationTime = {{ image_rotation_time }} * 1000; // Convert to milliseconds
-            const images = document.querySelectorAll('.image-banner img:not(.nav-button)');
-            let currentIndex = 0;
-            let rotationInterval;
+    <script>
+        const rotationTime = {{ image_rotation_time }} * 1000; // Convert to milliseconds
+        const images = document.querySelectorAll('.image-banner img'); // Select all images
+        console.log("images found: ", images);
+        let currentIndex = 0;
+        let rotationInterval;
 
-            function showImage(index) {
-                // Remove active class from current image
-                images[currentIndex].classList.remove('active');
-                
-                // Update index
-                currentIndex = index;
-                
-                // Add active class to new image
-                images[currentIndex].classList.add('active');
-            }
+        function showImage(index) {
+            // Ensure all images are hidden
+            images.forEach((img) => img.classList.remove('active'));
 
-            function nextImage() {
-                showImage((currentIndex + 1) % images.length);
-            }
+            // Update index and show the new image
+            currentIndex = index;
+            images[currentIndex].classList.add('active');
+        }
 
-            function prevImage() {
-                showImage((currentIndex - 1 + images.length) % images.length);
-            }
+        function nextImage() {
+            showImage((currentIndex + 1) % images.length);
+        }
+        window.nextImage = nextImage; // Expose nextImage to the global scope
 
-            function startRotation() {
-                rotationInterval = setInterval(nextImage, rotationTime);
-            }
+        function prevImage() {
+            showImage((currentIndex - 1 + images.length) % images.length);
+        }
+        window.prevImage = prevImage; // Expose prevImage to the global scope
 
-            function stopRotation() {
-                clearInterval(rotationInterval);
-            }
+        function startRotation() {
+            console.log("Starting rotation");
+            rotationInterval = setInterval(nextImage, rotationTime);
+        }
 
-            // Start rotation
-            startRotation();
+        function stopRotation() {
+            clearInterval(rotationInterval);
+        }
 
-            // Stop rotation when hovering over the banner
-            document.querySelector('.image-banner').addEventListener('mouseenter', stopRotation);
-            document.querySelector('.image-banner').addEventListener('mouseleave', startRotation);
+        // Start rotation
+        startRotation();
 
-            // Mobile menu functionality
-            function toggleMobileMenu() {
-                const mobileMenu = document.getElementById('mobileMenu');
-                const hamburger = document.querySelector('.hamburger');
-                mobileMenu.classList.toggle('active');
-                hamburger.classList.toggle('active');
-            }
+        // Stop rotation when hovering over the banner
+        const banner = document.querySelector('.image-banner');
+        if (banner) {
+            banner.addEventListener('mouseenter', stopRotation);
+            banner.addEventListener('mouseleave', startRotation);
+        }
 
-            // Close mobile menu when clicking a link
-            document.querySelectorAll('.mobile-menu a').forEach(link => {
-                link.addEventListener('click', () => {
-                    const mobileMenu = document.getElementById('mobileMenu');
-                    const hamburger = document.querySelector('.hamburger');
-                    mobileMenu.classList.remove('active');
-                    hamburger.classList.remove('active');
-                });
+        // Add event listeners for navigation buttons
+        const prevButton = document.querySelector('.nav-button.prev');
+        const nextButton = document.querySelector('.nav-button.next');
+        if (prevButton && nextButton) {
+            prevButton.addEventListener('click', () => {
+                stopRotation(); // Stop rotation temporarily
+                prevImage();
+                startRotation(); // Restart rotation
             });
-        </script>
+
+            nextButton.addEventListener('click', () => {
+                stopRotation(); // Stop rotation temporarily
+                nextImage();
+                startRotation(); // Restart rotation
+            });
+        }
+    </script>
 {% endblock %} 

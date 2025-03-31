@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, JSONResponse
 
 from src.shared.database.init import lifespan
-from src.shared.routers import all_routers
+from src.shared.routers import router
 from src.shared.server.config import static, templates
 
 app = FastAPI(lifespan=lifespan)
@@ -12,9 +12,7 @@ app = FastAPI(lifespan=lifespan)
 # Mount static files
 app.mount("/static", static, name="static")
 
-# Include routers
-for router in all_routers:
-    app.include_router(router)
+app.include_router(router)
 
 
 @app.exception_handler(404)
