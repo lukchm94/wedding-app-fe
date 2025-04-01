@@ -12,7 +12,7 @@ async def admin_dashboard(request: Request):
     Serve the admin dashboard page.
     """
     return templates.TemplateResponse(
-        "admin_dashboard.html",
+        "admin/dashboard.html",
         {
             "request": request,
         },
