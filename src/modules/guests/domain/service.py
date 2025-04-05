@@ -1,12 +1,12 @@
 from typing import Any
 
 from ..domain.guest import Guest
-from .repository import GuestRepository
+from ..infra.repository.implementation import GuestRepoImpl
 
 
 class GuestService:
-    def __init__(self, guest_repository: GuestRepository) -> None:
-        self.guest_repository: GuestRepository = guest_repository
+    def __init__(self, guest_repository: GuestRepoImpl) -> None:
+        self.guest_repository: GuestRepoImpl = guest_repository
 
     def get_guest(self, guest_id: int) -> Any:
         return self.guest_repository.get_guest_by_id(guest_id)

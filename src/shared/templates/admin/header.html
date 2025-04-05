@@ -69,18 +69,16 @@
             <div class="flex justify-between items-center">
                 <div>
                     <a href="/" class="flex items-center py-4" onclick="window.location.reload();">
-                        <img src="/static/icons/home.png" alt="Wesele Agaty i Łukasza" class="h-8 w-8">
+                        <img src="/static/icons/logout.png" alt="Wesele Agaty i Łukasza" class="h-8 w-8">
                     </a>
                 </div>
                 <!-- Desktop Navigation -->
                 <div class="hidden md:flex items-center space-x-8">
-                    <a href="/plan-wesela" class="py-4 px-4 text-gray-500 hover:text-blue-500 hover:bg-gray-100 rounded-lg transition duration-300">Plan Wesela</a>
-                    <a href="/location" class="py-4 px-4 {% if request.url.path == '/miejsce' %}text-blue-500{% else %}text-gray-500 hover:text-blue-500{% endif %} hover:bg-gray-100 rounded-lg transition duration-300">Miejsce</a>
-                    <a href="/lista-gosci" class="py-4 px-4 text-gray-500 hover:text-blue-500 hover:bg-gray-100 rounded-lg transition duration-300">Lista Gości</a>
-                    <a href="/rsvp" class="py-4 px-4 text-gray-500 hover:text-blue-500 hover:bg-gray-100 rounded-lg transition duration-300">Potwierdź obecność</a>
-                    <a href="/our-history" class="py-4 px-4 text-gray-500 hover:text-blue-500 hover:bg-gray-100 rounded-lg transition duration-300">Nasza Historia</a>
-                    <a href="/zdjecia" class="py-4 px-4 text-gray-500 hover:text-blue-500 hover:bg-gray-100 rounded-lg transition duration-300">Zdjęcia</a>
-                    <a href="/login" class="py-4 px-4 text-gray-500 hover:text-blue-500 hover:bg-gray-100 rounded-lg transition duration-300">Login</a>
+                    <a href="/admin/set-schedule" class="py-4 px-4 text-gray-500 hover:text-blue-500 hover:bg-gray-100 rounded-lg transition duration-300">Wprowadź plan</a>
+                    <a href="/admin/add-guests" class="py-4 px-4 text-gray-500 hover:text-blue-500 hover:bg-gray-100 rounded-lg transition duration-300">Dodaj listę gości</a>
+                    <a href="/admin/manage-guests" class="py-4 px-4 text-gray-500 hover:text-blue-500 hover:bg-gray-100 rounded-lg transition duration-300">Zarządzaj gośćmi</a>
+                    <a href="/admin/our-history" class="py-4 px-4 text-gray-500 hover:text-blue-500 hover:bg-gray-100 rounded-lg transition duration-300">Wprowadź Naszą Historię</a>
+                    <a href="/admin/upload-photos" class="py-4 px-4 text-gray-500 hover:text-blue-500 hover:bg-gray-100 rounded-lg transition duration-300">Zdjęcia</a>
                 </div>
                 <!-- Mobile Menu Button -->
                 <div class="md:hidden">
@@ -96,13 +94,11 @@
 
     <!-- Mobile Menu -->
     <div class="mobile-menu" id="mobileMenu">
-        <a href="/plan-wesela" class="py-4 px-4 text-gray-500 hover:text-blue-500 hover:bg-gray-100">Plan Wesela</a>
-        <a href="/location" class="py-4 px-4 {% if request.url.path == '/location' %}text-blue-500 bg-gray-100{% else %}text-gray-500 hover:text-blue-500 hover:bg-gray-100{% endif %}">Miejsce</a>
-        <a href="/lista-gosci" class="py-4 px-4 text-gray-500 hover:text-blue-500 hover:bg-gray-100">Lista Gości</a>
-        <a href="/rsvp" class="py-4 px-4 text-gray-500 hover:text-blue-500 hover:bg-gray-100">Potwierdź obecność</a>
-        <a href="/our-history" class="py-4 px-4 text-gray-500 hover:text-blue-500 hover:bg-gray-100">Nasza Historia</a>
-        <a href="/zdjecia" class="py-4 px-4 text-gray-500 hover:text-blue-500 hover:bg-gray-100">Zdjęcia</a>
-        <a href="/login" class="py-4 px-4 text-gray-500 hover:text-blue-500 hover:bg-gray-100">Admin</a>
+        <a href="/admin/set-schedule" class="py-4 px-4 text-gray-500 hover:text-blue-500 hover:bg-gray-100">Wprowadź plan</a>
+        <a href="/admin/add-guests" class="py-4 px-4 text-gray-500 hover:text-blue-500 hover:bg-gray-100">Dodaj listę gości</a>
+        <a href="/admin/manage-guests" class="py-4 px-4 text-gray-500 hover:text-blue-500 hover:bg-gray-100">Zarządzaj gośćmi</a>
+        <a href="/admin/our-history" class="py-4 px-4 text-gray-500 hover:text-blue-500 hover:bg-gray-100">Wprowadź Naszą Historię</a>
+        <a href="/admin/upload-photos" class="py-4 px-4 text-gray-500 hover:text-blue-500 hover:bg-gray-100">Zdjęcia</a>
     </div>
 
     <!-- Add padding to account for fixed header -->

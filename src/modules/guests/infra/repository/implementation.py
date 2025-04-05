@@ -1,5 +1,5 @@
 from logging import Logger
-from typing import TYPE_CHECKING, Optional
+from typing import Optional, Union
 
 from sqlalchemy.orm import Session
 from typing_extensions import override
@@ -16,9 +16,33 @@ class GuestRepoImpl(GuestRepository):
         self.logger: Logger = logger
 
     @override
-    def create_guest(self, guest: str) -> Guest:
+    def create_guest(self, guest: Guest) -> Guest:
         """Create a new guest."""
-        guest_model: GuestModel = GuestModel(guest.model_dump())
+        existing_guest: Union[GuestModel, None] = (
+            self.db.query(GuestModel).filter(GuestModel.email == guest.email).first()
+        )
+        if existing_guest:
+            return self.update_guest(guest)
+
+        # Convert the Guest domain model to a dictionary
+        guest_dict = guest.model_dump()
+
+        # Map the domain model fields to the ORM model fields
+        orm_guest_dict = {
+            "first_name": guest_dict["first_name"],
+            "last_name": guest_dict["last_name"],
+            "email": guest_dict["email"],
+            "phone_number": guest_dict["phone"],
+            "menu_choice": guest_dict["menu"],
+            "dietary_restrictions": guest_dict["dietary_requirements"],
+            "hotel_accommodation": guest_dict["needs_hotel"],
+            "has_guest": guest_dict["has_guest"],
+            "guest_id": guest_dict["guest_id"],
+        }
+
+        # Create the ORM model with the mapped dictionary
+        guest_model: GuestModel = GuestModel(**orm_guest_dict)
+
         self.db.add(guest_model)
         self.db.commit()
         self.db.refresh(guest_model)
@@ -28,7 +52,7 @@ class GuestRepoImpl(GuestRepository):
     @override
     def get_guest_by_id(self, guest_id: int) -> Optional[GuestModel]:
         """Retrieve a guest by ID."""
-        guest: GuestModel = (
+        guest: Union[GuestModel, None] = (
             self.db.query(GuestModel).filter(GuestModel.id == guest_id).first()
         )
         if not guest:
@@ -39,12 +63,31 @@ class GuestRepoImpl(GuestRepository):
     def update_guest(self, guest: Guest) -> GuestModel:
         """Update an existing guest."""
         existing_guest = (
-            self.db.query(GuestModel).filter(GuestModel.id == guest.guest_id).first()
+            self.db.query(GuestModel).filter(GuestModel.email == guest.email).first()
         )
         if not existing_guest:
-            raise ValueError(f"Guest with ID {guest.guest_id} not found.")
-        for key, value in guest.model_dump().items():
+            raise ValueError(f"Guest with email {guest.email} not found.")
+
+        # Convert the Guest domain model to a dictionary
+        guest_dict = guest.model_dump()
+
+        # Map the domain model fields to the ORM model fields
+        orm_guest_dict = {
+            "first_name": guest_dict["first_name"],
+            "last_name": guest_dict["last_name"],
+            "email": guest_dict["email"],
+            "phone_number": guest_dict["phone"],
+            "menu_choice": guest_dict["menu"],
+            "dietary_restrictions": guest_dict["dietary_requirements"],
+            "hotel_accommodation": guest_dict["needs_hotel"],
+            "has_guest": guest_dict["has_guest"],
+            "guest_id": guest_dict["guest_id"],
+        }
+
+        # Update the ORM model with the mapped dictionary
+        for key, value in orm_guest_dict.items():
             setattr(existing_guest, key, value)
+
         self.db.commit()
         self.db.refresh(existing_guest)
         return existing_guest

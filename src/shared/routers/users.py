@@ -33,7 +33,7 @@ async def create_user(db: db_session, request: Request):
 @router.get("/")
 async def get_user(db: db_session):
     logger.info("Getting user")
-    db.query(UserModel).all()
-    logger.info(f"User retrieved: {TEST_USER}")
+    users = db.query(UserModel).all()
+    logger.info(f"Users retrieved: {users}")
     # Placeholder for user retrieval logic
-    return {"message": "User retrieved successfully", "data": TEST_USER}
+    return {"message": "Users retrieved successfully", "data": users}
