@@ -5,8 +5,8 @@ from typing import Optional
 
 from pydantic import BaseModel, EmailStr, Field, model_validator
 
-from .....src.shared.database.models.guest import Guest as GuestModel
-from .....src.shared.utils.__validations import MenuChoices
+from src.shared.database.models.guest import Guest as GuestModel
+from src.shared.utils.__validations import MenuChoices
 
 
 class Guest(BaseModel):

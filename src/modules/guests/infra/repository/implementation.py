@@ -16,7 +16,7 @@ class GuestRepoImpl(GuestRepository):
         self.logger: Logger = logger
 
     @override
-    def create_guest(self, guest: str) -> Guest:
+    def create_guest(self, guest: Guest) -> Guest:
         """Create a new guest."""
         guest_model: GuestModel = GuestModel(guest.model_dump())
         self.db.add(guest_model)

@@ -1,3 +1,4 @@
+from logging import Logger
 from typing import Any
 
 from ...domain.guest import Guest
@@ -9,9 +10,11 @@ class CreateGuestUseCase:
     Use case for creating a guest.
     """
 
-    guest_service: GuestService
-
-    def __init__(self, guest_service: GuestService):
+    def __init__(self, guest_service: GuestService, logger: Logger) -> None:
+        """
+        Initialize the use case with a guest service and logger.
+        """
+        self.logger: Logger = logger
         self.guest_service: GuestService = guest_service
 
     def execute(self, guest_data: Any) -> Guest:

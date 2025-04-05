@@ -1,7 +1,4 @@
 from fastapi import FastAPI, Request
-from fastapi.exceptions import RequestValidationError
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse, JSONResponse
 
 from src.shared.database.init import lifespan
 from src.shared.routers import router

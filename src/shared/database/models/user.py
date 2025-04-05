@@ -1,7 +1,8 @@
-from sqlalchemy import VARCHAR, Column, Enum as SQLEnum
+from sqlalchemy import VARCHAR, Column
+from sqlalchemy import Enum as SQLEnum
 
 from ...utils.__validations import UserRoles
-from .base import BaseModel
+from .base_model import BaseModel
 
 
 class User(BaseModel):

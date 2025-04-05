@@ -28,6 +28,14 @@ class TokenService:
             f"TokenService initialized with expire_minutes: {self.expire_minutes}"
         )
 
+    def generate_token(self, user: UserModel) -> UserWithToken:
+        token: str = self._get_access_token(user)
+        user_with_token: UserWithToken = UserWithToken(
+            access_token=token, token_type=TokenTypes.bearer.value, user=user
+        )
+        self.logger.debug(f"Generated token for user: {user.username}")
+        return user_with_token
+
     def _get_delta(self) -> timedelta:
         return timedelta(minutes=self.expire_minutes)
 
@@ -43,11 +51,3 @@ class TokenService:
             key=settings.SECRET_KEY,
             algorithm=TokenConfigs.algorithm.value,
         )
-
-    def generate_token(self, user: UserModel) -> UserWithToken:
-        token: str = self._get_access_token(user)
-        user_with_token: UserWithToken = UserWithToken(
-            access_token=token, token_type=TokenTypes.bearer.value, user=user
-        )
-        self.logger.debug(f"Generated token for user: {user.username}")
-        return user_with_token

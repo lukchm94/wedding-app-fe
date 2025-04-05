@@ -1,8 +1,7 @@
 from sqlalchemy import Boolean, Column, DateTime, Enum, Integer, String
 
-from src.shared.database.models.base import BaseModel
-
 from ...utils.__validations import MenuChoices
+from .base_model import BaseModel
 
 
 class Guest(BaseModel):

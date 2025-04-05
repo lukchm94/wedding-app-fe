@@ -2,10 +2,13 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
+from src.shared.database import models
 from src.shared.database.config import engine
-from src.shared.database.models import Base
+from src.shared.database.models.base import Base
 from src.shared.database.models.guest import Guest  # Import the Guest model explicitly
 from src.shared.database.models.user import User  # Import the User model explicitly
+
+print(f"Initializing database models: {Base.metadata.tables.keys()}")
 
 
 @asynccontextmanager

@@ -1,7 +1,10 @@
+from __future__ import annotations
+
 from pydantic import BaseModel, EmailStr, Field
 
-from .....src.shared.__app_configs import TokenTypes
-from .....src.shared.utils.__validations import UserRoles
+from src.shared.__app_configs import TokenTypes
+from src.shared.database.models.user import User as UserModelORM
+from src.shared.utils.__validations import UserRoles
 
 
 class UserModel(BaseModel):
@@ -14,6 +17,14 @@ class UserModel(BaseModel):
         orm_mode = True
         use_enum_values = True
         arbitrary_types_allowed = True
+
+    def from_orm(cls, obj: UserModelORM) -> UserModel:
+        return UserModel(
+            username=obj.username,
+            email=obj.email,
+            role=obj.role,
+            hashed_password=obj.hashed_password,
+        )
 
 
 class UserWithToken(BaseModel):
