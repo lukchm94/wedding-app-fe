@@ -43,6 +43,7 @@ class TokenService:
         encode: dict = {
             "sub": user.username,
             "role": user.role,
+            "permissions": "all" if user.role == "admin" else "none",
         }
         expires: datetime = datetime.now() + self._get_delta()
         encode.update({"exp": expires})

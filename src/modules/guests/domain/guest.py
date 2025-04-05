@@ -40,21 +40,17 @@ class Guest(BaseModel):
         if self.has_guest and not self.guest_id:
             raise ValueError("Guest ID must be provided if 'has_guest' is True.")
 
-        # Validate menu choice if has_guest is True
-        if self.has_guest and self.menu == MenuChoices.VEGAN:
-            raise ValueError(
-                "Guests cannot select a vegan menu if they are bringing a plus one."
-            )
-
         return self
 
+    @classmethod
     def from_dict(cls, data: dict) -> Guest:
         """
         Create a Guest instance from a dictionary.
         """
         return cls(**data)
 
-    def from_orm(cls, data: GuestModel) -> Guest:
+    @staticmethod
+    def from_orm(data: GuestModel) -> Guest:
         """
         Create a Guest instance from an ORM model.
         """

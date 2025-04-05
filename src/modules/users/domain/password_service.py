@@ -24,14 +24,14 @@ class PasswordService:
         self.logger.debug(f"Verifying password for user: {user_to_verify.username}")
         return self.encode_passwords(password) == user_to_verify.hashed_password
 
-    def encode_passwords(password: str) -> str:
+    def encode_passwords(self, password: str) -> str:
         """
         The function `encode_passwords` encodes a given password using base64 encoding.
 
         :param password: The `encode_passwords` function takes a password as input, encodes it using
         base64 encoding, and returns the encoded password as a string
         :type password: str
-        :return: The function `encode_passwords` takes a password as input, encodes it using base64
-        encoding, and then decodes the result before returning it as a string.
+        :return: The function `encode_passwords` takes a password as input, encodes it using
+        base64 encoding, and then decodes the result before returning it as a string.
         """
         return base64.b64encode(password.encode()).decode()

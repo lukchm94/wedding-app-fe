@@ -12,7 +12,7 @@ from src.modules.users.domain.token_service import TokenService
 from src.modules.users.domain.user_repository import UserRepository
 from src.modules.users.domain.user_service import UserService
 from src.modules.users.infra.repository.user_repo_impl import UserRepoImpl
-from src.shared.database.config import get_db
+from src.shared.database.config import SessionLocal
 from src.shared.utils.logger import Logger, get_logger
 
 
@@ -29,36 +29,11 @@ class DIContainer:
         self._logger.debug("DIContainer initialized")
 
         # Initialize database connection
-        self.register("db", get_db())
-
-        # Initialize repositories
-        self.register("user_repo_impl", UserRepoImpl(self.get("db"), self._logger))
-        self.register("guest_repo_impl", GuestRepoImpl(self.get("db"), self._logger))
+        self.register("db_session", SessionLocal)
 
         # Initialize domain services
-        self.register(
-            "user_service", UserService(self._logger, self.get("user_repo_impl"))
-        )
-        self.register("guest_service", GuestService(self.get("guest_repo_impl")))
         self.register("password_service", PasswordService(self._logger))
         self.register("token_service", TokenService(self._logger))
-
-        # Initialize use cases
-        self.register(
-            "login_use_case",
-            LoginUseCase(
-                user_service=self.get("user_service"),
-                password_service=self.get("password_service"),
-                jwt_service=self.get("token_service"),
-                logger=self._logger,
-            ),
-        )
-        self.register(
-            "create_guest_use_case",
-            CreateGuestUseCase(
-                guest_service=self.get("guest_service"), logger=self._logger
-            ),
-        ),
 
     def register(self, name, service):
         """
@@ -110,3 +85,9 @@ class DIContainer:
             guest_service=guest_service, logger=self._logger
         )
         return create_guest_use_case
+
+    def get_logger(self) -> Logger:
+        """
+        Get the logger
+        """
+        return self._logger

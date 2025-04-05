@@ -1,4 +1,5 @@
 from logging import Logger
+from typing import Optional, Union
 
 from sqlalchemy.orm import Session
 from typing_extensions import override
@@ -18,17 +19,19 @@ class UserRepoImpl(UserRepository):
         self.logger.debug(f"Type of DB: {type(self.db)}")
 
     @override
-    def get_user_by_email(self, email: str) -> UserModel:
+    def get_user_by_email(self, email: str) -> Optional[UserModel]:
         """Retrieve a user by email."""
         self.logger.debug(f"Retrieving user by email: {email}")
-        user: UserModelDB = (
+        user: Union[UserModelDB, None] = (
             self.db.query(UserModelDB).filter(UserModelDB.email == email).first()
         )
-        self.db.query(UserModelDB).filter(UserModelDB.email == email).first()
         if not user:
-            raise ValueError(f"User with email {email} not found.")
-        user = UserModel.from_orm(user)
-        return super().get_user_by_email(email)
+            self.logger.debug(f"User with email {email} not found.")
+            return None
+        self.logger.debug(f"User found: {user}")
+        user_model: UserModel = UserModel.from_orm(user)
+        self.logger.debug(f"User model: {user_model}")
+        return user_model
 
     @override
     def create_user(self, user: UserModel) -> UserModel:

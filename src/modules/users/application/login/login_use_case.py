@@ -1,4 +1,7 @@
 from logging import Logger
+from typing import Union
+
+from fastapi import HTTPException
 
 from ...domain.password_service import PasswordService
 from ...domain.token_service import TokenService
@@ -23,12 +26,19 @@ class LoginUseCase:
         self.logger.debug("Executing login use case")
         self.logger.debug(f"Email: {email}")
         self.logger.debug(f"Password: {password}")
-        user: UserModel = self.user_service.find_by_email(email)
-        if not user:
-            raise Exception("User not found")
+        try:
+            user: Union[UserModel, None] = self.user_service.find_by_email(email)
+            if not user:
+                raise HTTPException(status_code=401, detail="User not found")
 
-        if not self.password_service.verify_password(password, user):
-            raise Exception("Invalid password")
+            if not self.password_service.verify_password(password, user):
+                raise HTTPException(status_code=401, detail="Invalid password")
 
-        token = self.jwt_service.generate_token(user)
-        return token
+            token: UserWithToken = self.jwt_service.generate_token(user)
+            return token
+        except HTTPException:
+            self.logger.error(f"Error in login use case: {e}")
+            raise HTTPException(status_code=401, detail=f"Login failed: {str(e)}")
+        except Exception as e:
+            self.logger.error(f"Error in login use case: {e}")
+            raise HTTPException(status_code=500, detail=f"Login failed: {str(e)}")

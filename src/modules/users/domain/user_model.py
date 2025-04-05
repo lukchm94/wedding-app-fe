@@ -18,7 +18,8 @@ class UserModel(BaseModel):
         use_enum_values = True
         arbitrary_types_allowed = True
 
-    def from_orm(cls, obj: UserModelORM) -> UserModel:
+    @staticmethod
+    def from_orm(obj: UserModelORM) -> UserModel:
         return UserModel(
             username=obj.username,
             email=obj.email,
