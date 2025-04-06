@@ -1,0 +1,72 @@
+{% extends "admin/header.html" %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="bg-white rounded-lg shadow-lg p-6 max-w-2xl mx-auto">
+        <div class="text-center mb-6">
+            <svg class="h-16 w-16 text-red-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+            <h1 class="text-3xl font-bold text-gray-800">Guest Upload Failed</h1>
+            <p class="text-gray-600 mt-2">There were issues uploading some or all of the guests:</p>
+        </div>
+
+        <div class="border-t border-gray-200 pt-6">
+            <h2 class="text-xl font-semibold mb-4">Error Details</h2>
+            <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-6">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm text-red-700">
+                            {{ error_message }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            {% if failed_guests %}
+            <h2 class="text-xl font-semibold mb-4">Failed Guests</h2>
+            <ul class="space-y-3">
+                {% for guest in failed_guests %}
+                <li class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div>
+                        <span class="font-medium">{{ guest.first_name }} {{ guest.last_name }}</span>
+                        <span class="text-gray-500 text-sm ml-2">({{ guest.email }})</span>
+                    </div>
+                    <span class="text-red-500 text-sm">Failed to upload</span>
+                </li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+
+            {% if successful_guests %}
+            <h2 class="text-xl font-semibold mt-6 mb-4">Successfully Uploaded Guests</h2>
+            <ul class="space-y-3">
+                {% for guest in successful_guests %}
+                <li class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div>
+                        <span class="font-medium">{{ guest.first_name }} {{ guest.last_name }}</span>
+                        <span class="text-gray-500 text-sm ml-2">({{ guest.email }})</span>
+                    </div>
+                    <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded">Uploaded</span>
+                </li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+        </div>
+
+        <div class="mt-8 flex justify-center space-x-4">
+            <a href="/admin/add-guests" class="bg-blue-500 text-white px-6 py-3 rounded-md hover:bg-blue-600 font-medium">
+                Try Again
+            </a>
+            <a href="/admin/dashboard" class="bg-gray-500 text-white px-6 py-3 rounded-md hover:bg-gray-600 font-medium">
+                Back to Admin Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %} 

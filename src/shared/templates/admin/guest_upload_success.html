@@ -1,0 +1,55 @@
+{% extends "admin/header.html" %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="bg-white rounded-lg shadow-lg p-6 max-w-2xl mx-auto">
+        <div class="text-center mb-6">
+            <svg class="h-16 w-16 text-green-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            <h1 class="text-3xl font-bold text-gray-800">Guests Uploaded Successfully</h1>
+            <p class="text-gray-600 mt-2">The following guests have been added to the system:</p>
+        </div>
+
+        <div class="border-t border-gray-200 pt-6">
+            <h2 class="text-xl font-semibold mb-4">Main Guests</h2>
+            <ul class="space-y-3">
+                {% for guest in main_guests %}
+                <li class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div>
+                        <span class="font-medium">{{ guest.first_name }} {{ guest.last_name }}</span>
+                        <span class="text-gray-500 text-sm ml-2">({{ guest.email }})</span>
+                    </div>
+                    {% if guest.has_guest %}
+                    <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">Has Plus-One</span>
+                    {% endif %}
+                </li>
+                {% endfor %}
+            </ul>
+
+            {% if plus_ones %}
+            <h2 class="text-xl font-semibold mt-6 mb-4">Plus-Ones</h2>
+            <ul class="space-y-3">
+                {% for guest in plus_ones %}
+                <li class="flex items-center p-3 bg-gray-50 rounded-lg">
+                    <div>
+                        <span class="font-medium">{{ guest.first_name }} {{ guest.last_name }}</span>
+                        <span class="text-gray-500 text-sm ml-2">({{ guest.email }})</span>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+        </div>
+
+        <div class="mt-8 flex justify-center space-x-4">
+            <a href="/admin/add-guests" class="bg-blue-500 text-white px-6 py-3 rounded-md hover:bg-blue-600 font-medium">
+                Add More Guests
+            </a>
+            <a href="/admin/dashboard" class="bg-gray-500 text-white px-6 py-3 rounded-md hover:bg-gray-600 font-medium">
+                Back to Admin Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %} 

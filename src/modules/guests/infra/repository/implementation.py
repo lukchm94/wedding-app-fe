@@ -18,11 +18,22 @@ class GuestRepoImpl(GuestRepository):
     @override
     def create_guest(self, guest: Guest) -> Guest:
         """Create a new guest."""
-        existing_guest: Union[GuestModel, None] = (
-            self.db.query(GuestModel).filter(GuestModel.email == guest.email).first()
+        # Check for existing guest with same first and last name
+        existing_guest_name: Union[GuestModel, None] = (
+            self.db.query(GuestModel)
+            .filter(
+                GuestModel.first_name == guest.first_name,
+                GuestModel.last_name == guest.last_name,
+            )
+            .first()
         )
-        if existing_guest:
-            return self.update_guest(guest)
+        if existing_guest_name:
+            self.logger.info(
+                f"Guest with name {guest.first_name} {guest.last_name} already exists: {existing_guest_name}"
+            )
+            raise ValueError(
+                f"Guest with name {guest.first_name} {guest.last_name} already exists"
+            )
 
         # Convert the Guest domain model to a dictionary
         guest_dict = guest.model_dump()
@@ -47,7 +58,10 @@ class GuestRepoImpl(GuestRepository):
         self.db.commit()
         self.db.refresh(guest_model)
         self.logger.info(f"Guest created: {guest_model}")
-        return guest
+        # guest = Guest.from_orm(guest_model)
+        self.logger.info(f"Guest Model ID: {guest_model.id}")
+
+        return Guest.from_orm(guest_model)
 
     @override
     def get_guest_by_id(self, guest_id: int) -> Optional[GuestModel]:
@@ -56,20 +70,21 @@ class GuestRepoImpl(GuestRepository):
             self.db.query(GuestModel).filter(GuestModel.id == guest_id).first()
         )
         if not guest:
-            raise ValueError(f"Guest with ID {guest_id} not found.")
+            return None
         return Guest.from_orm(guest)
 
     @override
     def update_guest(self, guest: Guest) -> GuestModel:
         """Update an existing guest."""
         existing_guest = (
-            self.db.query(GuestModel).filter(GuestModel.email == guest.email).first()
+            self.db.query(GuestModel).filter(GuestModel.id == guest.id).first()
         )
+        self.logger.debug(f"Existing guest: {existing_guest}")
         if not existing_guest:
-            raise ValueError(f"Guest with email {guest.email} not found.")
+            raise ValueError(f"Guest with ID {guest.id} not found.")
 
         # Convert the Guest domain model to a dictionary
-        guest_dict = guest.model_dump()
+        guest_dict = guest.dict()
 
         # Map the domain model fields to the ORM model fields
         orm_guest_dict = {
@@ -83,6 +98,8 @@ class GuestRepoImpl(GuestRepository):
             "has_guest": guest_dict["has_guest"],
             "guest_id": guest_dict["guest_id"],
         }
+
+        self.logger.debug(f"ORM guest dict: {orm_guest_dict}")
 
         # Update the ORM model with the mapped dictionary
         for key, value in orm_guest_dict.items():
@@ -99,3 +116,23 @@ class GuestRepoImpl(GuestRepository):
         if guest:
             self.db.delete(guest)
             self.db.commit()
+
+    @override
+    def find_guest_by_name(self, first_name: str, last_name: str) -> Optional[Guest]:
+        """Find a guest by first and last name."""
+        guest_model: Union[GuestModel, None] = (
+            self.db.query(GuestModel)
+            .filter(
+                GuestModel.first_name == first_name, GuestModel.last_name == last_name
+            )
+            .first()
+        )
+        self.logger.debug(f"\n\nGuest ORM Model: {guest_model}\n\n")
+
+        # Check if guest_model is None before trying to convert it
+        if guest_model is None:
+            return None
+
+        guest: Guest = Guest.from_orm(guest_model)
+        self.logger.debug(f"\n\nGuest: {guest}\n\n")
+        return guest
