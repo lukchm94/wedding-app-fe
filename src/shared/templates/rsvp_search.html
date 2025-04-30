@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}Znajdź swoje zaproszenie{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto p-8 md:p-12">
+    <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">Znajdź swoje zaproszenie</h1>
+    <p class="text-gray-600 mb-8 text-center">Wpisz swoje imię, aby znaleźć swoje zaproszenie i potwierdzić obecność.</p>
+    
+    {% if message %}
+    <div class="mb-8 p-4 rounded-md {% if success %}bg-green-50 text-green-700{% else %}bg-red-50 text-red-700{% endif %}">
+        {{ message }}
+    </div>
+    {% endif %}
+    
+    <div class="space-y-6">
+        <div class="relative">
+            <label for="searchName" class="block text-sm font-medium text-gray-700 mb-2">Wpisz swoje imię</label>
+            <input type="text" id="searchName" name="searchName"
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-3"
+                placeholder="np. Jan"
+                autocomplete="off">
+            <div id="nameSuggestions" class="absolute z-10 w-full bg-white border border-gray-300 rounded-md shadow-lg mt-1 hidden max-h-60 overflow-y-auto"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let searchTimeout;
+
+    document.getElementById('searchName').addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        const searchName = this.value.trim();
+        
+        if (searchName.length < 2) {
+            document.getElementById('nameSuggestions').classList.add('hidden');
+            return;
+        }
+        
+        searchTimeout = setTimeout(() => {
+            fetch(`/rsvp/search?first_name=${encodeURIComponent(searchName)}`)
+                .then(response => response.json())
+                .then(data => {
+                    const suggestionsDiv = document.getElementById('nameSuggestions');
+                    suggestionsDiv.innerHTML = '';
+                    
+                    if (data.length > 0) {
+                        data.forEach(guest => {
+                            const div = document.createElement('div');
+                            div.className = 'p-3 hover:bg-gray-100 cursor-pointer border-b border-gray-200 last:border-b-0';
+                            div.textContent = `${guest.first_name} ${guest.last_name}`;
+                            div.addEventListener('click', () => {
+                                // Redirect to the RSVP form with the guest's information
+                                window.location.href = `/rsvp/form/${guest.id}`;
+                            });
+                            suggestionsDiv.appendChild(div);
+                        });
+                        suggestionsDiv.classList.remove('hidden');
+                    } else {
+                        // Show "no results" message
+                        const div = document.createElement('div');
+                        div.className = 'p-3 text-gray-500 text-center';
+                        div.textContent = 'Nie znaleziono gościa o podanym imieniu';
+                        suggestionsDiv.appendChild(div);
+                        suggestionsDiv.classList.remove('hidden');
+                    }
+                });
+        }, 300);
+    });
+
+    // Hide suggestions when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('#searchName') && !e.target.closest('#nameSuggestions')) {
+            document.getElementById('nameSuggestions').classList.add('hidden');
+        }
+    });
+</script>
+{% endblock %} 

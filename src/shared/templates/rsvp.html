@@ -19,12 +19,14 @@
                 <div>
                     <label for="firstName" class="block text-sm font-medium text-gray-700 mb-2">Imię</label>
                     <input type="text" id="firstName" name="firstName" required
-                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-3">
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-3 bg-gray-100"
+                        value="{{ guest.first_name }}" readonly>
                 </div>
                 <div>
                     <label for="lastName" class="block text-sm font-medium text-gray-700 mb-2">Nazwisko</label>
                     <input type="text" id="lastName" name="lastName" required
-                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-3">
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-3 bg-gray-100"
+                        value="{{ guest.last_name }}" readonly>
                 </div>
             </div>
 
@@ -33,27 +35,15 @@
                 <label class="block text-sm font-medium text-gray-700 mb-3">Czy przybywasz z osobą towarzyszącą?</label>
                 <div class="mt-2 space-x-6">
                     <label class="inline-flex items-center">
-                        <input type="radio" name="hasGuest" value="yes" class="form-radio text-indigo-600">
+                        <input type="radio" name="hasGuest" value="yes" class="form-radio text-indigo-600"
+                            {% if guest.has_guest %}checked{% endif %}>
                         <span class="ml-2">Tak</span>
                     </label>
                     <label class="inline-flex items-center">
-                        <input type="radio" name="hasGuest" value="no" class="form-radio text-indigo-600">
+                        <input type="radio" name="hasGuest" value="no" class="form-radio text-indigo-600"
+                            {% if not guest.has_guest %}checked{% endif %}>
                         <span class="ml-2">Nie</span>
                     </label>
-                </div>
-            </div>
-
-            <!-- Guest Name Fields -->
-            <div id="guestNameFields" class="hidden pt-4 space-y-4">
-                <div>
-                    <label for="guestFirstName" class="block text-sm font-medium text-gray-700 mb-2">Imię osoby towarzyszącej</label>
-                    <input type="text" id="guestFirstName" name="guestFirstName"
-                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-3">
-                </div>
-                <div>
-                    <label for="guestLastName" class="block text-sm font-medium text-gray-700 mb-2">Nazwisko osoby towarzyszącej</label>
-                    <input type="text" id="guestLastName" name="guestLastName"
-                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-3">
                 </div>
             </div>
 
@@ -63,9 +53,9 @@
                 <select id="menu" name="menu" required
                     class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-3">
                     <option value="">Wybierz opcję</option>
-                    <option value="meat">Menu mięsne</option>
-                    <option value="vegetarian">Menu wegetariańskie</option>
-                    <option value="vegan">Menu wegańskie</option>
+                    <option value="meat" {% if guest.menu == 'meat' %}selected{% endif %}>Menu mięsne</option>
+                    <option value="vegetarian" {% if guest.menu == 'vegetarian' %}selected{% endif %}>Menu wegetariańskie</option>
+                    <option value="vegan" {% if guest.menu == 'vegan' %}selected{% endif %}>Menu wegańskie</option>
                 </select>
             </div>
 
@@ -74,27 +64,7 @@
                 <label for="dietaryRequirements" class="block text-sm font-medium text-gray-700 mb-2">Wymagania dietetyczne</label>
                 <textarea id="dietaryRequirements" name="dietaryRequirements" rows="3"
                     class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-3"
-                    placeholder="Proszę podać szczegóły dotyczące wymagań dietetycznych..."></textarea>
-            </div>
-
-            <!-- Guest Menu and Dietary Requirements -->
-            <div id="guestMenuFields" class="hidden pt-4 space-y-4">
-                <div>
-                    <label for="guestMenu" class="block text-sm font-medium text-gray-700 mb-2">Wybór menu osoby towarzyszącej</label>
-                    <select id="guestMenu" name="guestMenu"
-                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-3">
-                        <option value="">Wybierz opcję</option>
-                        <option value="meat">Menu mięsne</option>
-                        <option value="vegetarian">Menu wegetariańskie</option>
-                        <option value="vegan">Menu wegańskie</option>
-                    </select>
-                </div>
-                <div>
-                    <label for="guestDietaryRequirements" class="block text-sm font-medium text-gray-700 mb-2">Wymagania dietetyczne osoby towarzyszącej</label>
-                    <textarea id="guestDietaryRequirements" name="guestDietaryRequirements" rows="3"
-                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-3"
-                        placeholder="Proszę podać szczegóły dotyczące wymagań dietetycznych osoby towarzyszącej..."></textarea>
-                </div>
+                    placeholder="Proszę podać szczegóły dotyczące wymagań dietetycznych...">{{ guest.dietary_requirements }}</textarea>
             </div>
 
             <!-- Hotel Accommodation -->
@@ -102,11 +72,13 @@
                 <label class="block text-sm font-medium text-gray-700 mb-3">Czy potrzebujesz noclegu?</label>
                 <div class="mt-2 space-x-6">
                     <label class="inline-flex items-center">
-                        <input type="radio" name="needsHotel" value="yes" class="form-radio text-indigo-600">
+                        <input type="radio" name="needsHotel" value="yes" class="form-radio text-indigo-600"
+                            {% if guest.needs_hotel %}checked{% endif %}>
                         <span class="ml-2">Tak</span>
                     </label>
                     <label class="inline-flex items-center">
-                        <input type="radio" name="needsHotel" value="no" class="form-radio text-indigo-600">
+                        <input type="radio" name="needsHotel" value="no" class="form-radio text-indigo-600"
+                            {% if not guest.needs_hotel %}checked{% endif %}>
                         <span class="ml-2">Nie</span>
                     </label>
                 </div>
@@ -116,13 +88,15 @@
             <div class="pt-2">
                 <label for="phone" class="block text-sm font-medium text-gray-700 mb-2">Numer telefonu</label>
                 <input type="tel" id="phone" name="phone" required
-                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-3">
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-3"
+                    value="{{ guest.phone }}">
             </div>
 
             <div class="pt-2">
                 <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Adres email</label>
                 <input type="email" id="email" name="email" required
-                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-3">
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-3"
+                    value="{{ guest.email }}">
             </div>
         </div>
 
@@ -131,60 +105,21 @@
             <button type="submit"
                 class="inline-flex justify-center py-3 px-6 border border-transparent shadow-sm text-base font-medium rounded-md text-white bg-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                 disabled>
-                Wyślij
+                Potwierdź obecność
             </button>
         </div>
     </form>
 </div>
 
 <script>
-    // Show/hide guest fields based on radio selection
-    document.querySelectorAll('input[name="hasGuest"]').forEach(radio => {
-        radio.addEventListener('change', function() {
-            const guestNameFields = document.getElementById('guestNameFields');
-            const guestMenuFields = document.getElementById('guestMenuFields');
-            const showFields = this.value === 'yes';
-            guestNameFields.classList.toggle('hidden', !showFields);
-            guestMenuFields.classList.toggle('hidden', !showFields);
-
-            // Set required attributes for guest fields if "Tak" is selected
-            document.getElementById('guestFirstName').required = showFields;
-            document.getElementById('guestLastName').required = showFields;
-            document.getElementById('guestMenu').required = showFields;
-
-            validateForm();
-        });
-    });
-
-    // Check if guest names are the same
-    function checkGuestNames() {
-        const firstName = document.getElementById('firstName').value.trim().toLowerCase();
-        const lastName = document.getElementById('lastName').value.trim().toLowerCase();
-        const guestFirstName = document.getElementById('guestFirstName').value.trim().toLowerCase();
-        const guestLastName = document.getElementById('guestLastName').value.trim().toLowerCase();
-
-        let warningMessage = document.getElementById('nameWarning');
-        if (firstName && lastName && firstName === guestFirstName && lastName === guestLastName) {
-            if (!warningMessage) {
-                warningMessage = document.createElement('p');
-                warningMessage.id = 'nameWarning';
-                warningMessage.className = 'text-red-500 text-sm mt-2';
-                warningMessage.textContent = 'Nie możesz przyjść jako osoba towarzysząca dla siebie.';
-                document.getElementById('guestNameFields').appendChild(warningMessage);
-            }
-        } else if (warningMessage) {
-            warningMessage.remove();
-        }
-        validateForm();
-    }
-
     // Validate the form and disable/enable the submit button
     function validateForm() {
         const form = document.querySelector('form');
         const submitButton = document.querySelector('button[type="submit"]');
         const hotelOptionSelected = document.querySelector('input[name="needsHotel"]:checked') !== null;
-        const guestMenuValid = document.getElementById('guestMenu').required ? document.getElementById('guestMenu').value !== '' : true;
-        const isValid = form.checkValidity() && !document.getElementById('nameWarning') && hotelOptionSelected && guestMenuValid;
+        const menuSelected = document.getElementById('menu').value !== '';
+        const hasGuestSelected = document.querySelector('input[name="hasGuest"]:checked') !== null;
+        const isValid = form.checkValidity() && hotelOptionSelected && menuSelected && hasGuestSelected;
 
         submitButton.disabled = !isValid;
         submitButton.classList.toggle('bg-gray-400', !isValid);
@@ -193,15 +128,13 @@
     }
 
     // Add event listeners for validation
-    document.getElementById('guestFirstName').addEventListener('input', checkGuestNames);
-    document.getElementById('guestLastName').addEventListener('input', checkGuestNames);
-    document.getElementById('firstName').addEventListener('input', checkGuestNames);
-    document.getElementById('lastName').addEventListener('input', checkGuestNames);
     document.getElementById('phone').addEventListener('input', validateForm);
     document.getElementById('email').addEventListener('input', validateForm);
     document.getElementById('menu').addEventListener('change', validateForm);
-    document.getElementById('guestMenu').addEventListener('change', validateForm);
     document.querySelectorAll('input[name="needsHotel"]').forEach(radio => {
+        radio.addEventListener('change', validateForm);
+    });
+    document.querySelectorAll('input[name="hasGuest"]').forEach(radio => {
         radio.addEventListener('change', validateForm);
     });
 
