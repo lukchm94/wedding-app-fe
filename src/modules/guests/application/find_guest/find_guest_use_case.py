@@ -1,8 +1,8 @@
-from typing import Optional, Union, overload
+from typing import Optional, Union
 
 from src.modules.guests.domain.guest import Guest
-from src.modules.guests.domain.repository import GuestRepository
 from src.modules.guests.domain.service import GuestService
+from src.shared.utils.logger import logger
 
 
 class FindGuestUseCase:
@@ -26,16 +26,26 @@ class FindGuestUseCase:
         Returns:
             A single Guest if searching by ID, or a list of Guests if searching by name
         """
-        print(
+        logger.info(
             f"Searching for guests with guest_id: {guest_id}, first_name: {first_name}, last_name: {last_name}"
         )
-        print(guest_id is not None and isinstance(guest_id, int))
+        logger.info(guest_id is not None and isinstance(guest_id, int))
         # If guest_id is provided and it's an integer, search by ID
         if guest_id is not None and isinstance(guest_id, int):
             return self.guest_service.get_guest(guest_id)
 
-        # Otherwise, search by name
-        print(first_name is not None and last_name is not None)
         guest: Guest = self.guest_service.find_guest_by_name(first_name, last_name)
-        print(f"\n\nGuest in use case: {guest}\n\n")
         return guest
+
+    def find_in_session(self, first_name: str) -> list[Guest]:
+        """
+        The function `find_in_session` takes a first name as input and returns a list of `Guest` objects
+        found in the session.
+
+        :param first_name: The `first_name` parameter in the `find_in_session` method is a string that
+        represents the first name of a guest. This method is used to search for guests in a session
+        based on their first name
+        :type first_name: str
+        :return: A list of Guest objects that match the provided first name in the session.
+        """
+        return self.guest_service.find_in_session(first_name)

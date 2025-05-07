@@ -19,6 +19,7 @@ from src.modules.users.domain.user_repository import UserRepository
 from src.modules.users.domain.user_service import UserService
 from src.modules.users.infra.repository.user_repo_impl import UserRepoImpl
 from src.shared.controllers.admin.add_guests import GuestController
+from src.shared.controllers.rsvp.search import SearchController
 from src.shared.database.config import SessionLocal
 from src.shared.utils.logger import Logger, get_logger
 
@@ -127,3 +128,14 @@ class DIContainer:
             guest_service=guest_service
         )
         return find_guest_use_case
+
+    def build_search_controller(self, db: Session) -> SearchController:
+        """
+        Build the search controller
+        """
+        find_guest_use_case: FindGuestUseCase = self.build_find_guest_use_case(db)
+        return SearchController(
+            db=db,
+            find_guest_use_case=find_guest_use_case,
+            logger=self._logger,
+        )

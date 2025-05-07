@@ -25,3 +25,6 @@ class GuestService:
 
     def delete_guest(self, guest_id: int) -> None:
         self.guest_repository.delete_guest(guest_id)
+
+    def find_in_session(self, first_name: str) -> list[Guest]:
+        return self.guest_repository.find_in_session(first_name)

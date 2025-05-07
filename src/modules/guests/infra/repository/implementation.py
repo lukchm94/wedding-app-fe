@@ -136,3 +136,13 @@ class GuestRepoImpl(GuestRepository):
         guest: Guest = Guest.from_orm(guest_model)
         self.logger.debug(f"\n\nGuest: {guest}\n\n")
         return guest
+
+    @override
+    def find_in_session(self, first_name: str) -> list[Guest]:
+        """Find a guest by first name."""
+        guests: list[GuestModel] = (
+            self.db.query(GuestModel)
+            .filter(GuestModel.first_name.ilike(f"%{first_name}%"))
+            .all()
+        )
+        return [Guest.from_orm(guest) for guest in guests]
