@@ -1,0 +1,337 @@
+{% extends "admin/header.html" %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-6">
+    <h1 class="text-3xl font-bold mb-6 text-gray-800">Add Guests</h1>
+
+    <div class="overflow-x-auto">
+        <div id="guestsContainer" class="space-y-4">
+            <!-- Guest Card Template -->
+            <div class="guest-card bg-white rounded-lg shadow-md p-4 mb-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                    <!-- First Name -->
+                    <div class="relative">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">First Name</label>
+                        <input type="text" name="first_name[]" placeholder="First Name" required
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+
+                    <!-- Last Name -->
+                    <div class="relative">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
+                        <input type="text" name="last_name[]" placeholder="Last Name" required
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+
+                    <!-- Email -->
+                    <div class="relative">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                        <input type="email" name="email[]" placeholder="Email" required
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+
+                    <!-- Phone -->
+                    <div class="relative">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                        <input type="tel" name="phone[]" placeholder="XXX-XXX-XXX" required
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+
+                    <!-- Menu Choice -->
+                    <div class="relative">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Menu</label>
+                        <select name="menu[]" required
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">Select Menu</option>
+                            {% for choice in menu_choices %}
+                            <option value="{{ choice.value }}">{{ choice.label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Dietary Requirements -->
+                    <div class="relative">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Dietary Requirements</label>
+                        <textarea name="dietary_requirements[]" placeholder="Any dietary requirements?"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 resize-none"></textarea>
+                    </div>
+                </div>
+
+                <!-- Additional Options -->
+                <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="flex items-center space-x-2">
+                        <input type="checkbox" name="has_plus_one[]" id="has_plus_one_0" class="rounded text-blue-600 focus:ring-blue-500">
+                        <label for="has_plus_one_0" class="text-sm font-medium text-gray-700">Has Plus One</label>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <input type="checkbox" name="needs_hotel[]" id="needs_hotel_0" class="rounded text-blue-600 focus:ring-blue-500">
+                        <label for="needs_hotel_0" class="text-sm font-medium text-gray-700">Needs Hotel</label>
+                    </div>
+                </div>
+
+                <!-- Remove Button - Only show for cards after the first one -->
+                <div class="mt-4 flex justify-end">
+                    <button type="button" class="remove-guest-btn text-red-600 hover:text-red-800 text-sm font-medium hidden">
+                        Remove Guest
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="mt-6 flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
+        <button id="addGuestRow" type="button"
+            class="inline-flex items-center justify-center px-6 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+            Add Guest Row
+        </button>
+        <button id="saveAllGuests" type="button"
+            class="inline-flex items-center justify-center px-6 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+            Save All Guests
+        </button>
+    </div>
+</div>
+
+<script>
+    // Phone number formatting
+    function formatPhoneNumber(input) {
+        let value = input.value.replace(/\D/g, '');
+        let formattedValue = value.match(/(\d{0,3})(\d{0,3})(\d{0,3})/);
+        input.value = !formattedValue[2] ? formattedValue[1] : 
+                     formattedValue[1] + '-' + formattedValue[2] + 
+                     (formattedValue[3] ? '-' + formattedValue[3] : '');
+    }
+
+    // Initialize phone formatting for the first card
+    document.querySelector('input[name="phone[]"]').addEventListener('input', function(e) {
+        formatPhoneNumber(this);
+    });
+
+    // Handle Plus One functionality
+    function setupPlusOneHandler(guestCard) {
+        const hasPlusOneCheckbox = guestCard.querySelector('input[name="has_plus_one[]"]');
+        const needsHotelCheckbox = guestCard.querySelector('input[name="needs_hotel[]"]');
+
+        hasPlusOneCheckbox.addEventListener('change', function() {
+            const existingPlusOne = guestCard.nextElementSibling;
+            if (existingPlusOne && existingPlusOne.classList.contains('plus-one-card')) {
+                existingPlusOne.remove();
+            }
+
+            if (this.checked) {
+                // Clone the template but modify it for plus one
+                const plusOneCard = guestCard.cloneNode(true);
+                plusOneCard.classList.add('plus-one-card');
+                plusOneCard.classList.add('ml-8'); // Add left margin for visual hierarchy
+
+                // Clear all inputs
+                plusOneCard.querySelectorAll('input:not([type="checkbox"]), textarea, select').forEach(input => {
+                    input.value = '';
+                });
+
+                // Modify the title
+                const firstLabel = plusOneCard.querySelector('label');
+                const cardTitle = document.createElement('div');
+                cardTitle.className = 'text-lg font-semibold text-gray-700 mb-4';
+                cardTitle.textContent = 'Plus One Information';
+                plusOneCard.insertBefore(cardTitle, plusOneCard.firstChild);
+
+                // Disable and hide the Has Plus One checkbox section
+                const plusOneSection = plusOneCard.querySelector('input[name="has_plus_one[]"]').closest('div');
+                const hasPlusOneCheckbox = plusOneCard.querySelector('input[name="has_plus_one[]"]');
+                hasPlusOneCheckbox.disabled = true;
+                hasPlusOneCheckbox.checked = true;
+                plusOneSection.style.opacity = '0.5';
+                plusOneSection.style.cursor = 'not-allowed';
+
+                // Disable and link the needs hotel checkbox
+                const plusOneNeedsHotel = plusOneCard.querySelector('input[name="needs_hotel[]"]');
+                plusOneNeedsHotel.disabled = true;
+                plusOneNeedsHotel.checked = needsHotelCheckbox.checked;
+                const needsHotelSection = plusOneNeedsHotel.closest('div');
+                needsHotelSection.style.opacity = '0.5';
+                needsHotelSection.style.cursor = 'not-allowed';
+                
+                // Update the needs hotel checkbox when the main guest's checkbox changes
+                needsHotelCheckbox.addEventListener('change', () => {
+                    plusOneNeedsHotel.checked = needsHotelCheckbox.checked;
+                });
+
+                // Hide the remove button for plus one
+                const removeBtn = plusOneCard.querySelector('.remove-guest-btn');
+                if (removeBtn) {
+                    removeBtn.style.display = 'none';
+                }
+
+                // Add phone number formatting
+                const phoneInput = plusOneCard.querySelector('input[name="phone[]"]');
+                phoneInput.addEventListener('input', function(e) {
+                    formatPhoneNumber(this);
+                });
+
+                // Insert after the main guest card
+                guestCard.after(plusOneCard);
+            }
+        });
+    }
+
+    // Setup plus one handler for the first card
+    setupPlusOneHandler(document.querySelector('.guest-card'));
+
+    let guestCount = 1;
+
+    document.getElementById('addGuestRow').addEventListener('click', function() {
+        const container = document.getElementById('guestsContainer');
+        const template = container.children[0].cloneNode(true);
+        
+        // Reset form values
+        template.querySelectorAll('input:not([type="checkbox"]), textarea, select').forEach(input => {
+            input.value = '';
+        });
+        template.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+            checkbox.checked = false;
+        });
+
+        // Update IDs and names
+        template.querySelectorAll('[id]').forEach(element => {
+            element.id = element.id.replace('_0', `_${guestCount}`);
+        });
+        template.querySelectorAll('label[for]').forEach(label => {
+            label.setAttribute('for', label.getAttribute('for').replace('_0', `_${guestCount}`));
+        });
+
+        // Show remove button
+        template.querySelector('.remove-guest-btn').classList.remove('hidden');
+
+        // Add phone number formatting
+        template.querySelector('input[name="phone[]"]').addEventListener('input', function(e) {
+            formatPhoneNumber(this);
+        });
+
+        // Setup plus one handler for the new card
+        setupPlusOneHandler(template);
+
+        // Add remove button functionality that also removes plus one if exists
+        template.querySelector('.remove-guest-btn').addEventListener('click', function() {
+            const plusOneCard = template.nextElementSibling;
+            if (plusOneCard && plusOneCard.classList.contains('plus-one-card')) {
+                plusOneCard.remove();
+            }
+            template.remove();
+        });
+
+        container.appendChild(template);
+        guestCount++;
+    });
+
+    document.getElementById('saveAllGuests').addEventListener('click', async function() {
+        const button = this;
+        button.disabled = true;
+        button.innerHTML = '<svg class="animate-spin h-5 w-5 mr-2" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Saving...';
+
+        const guests = [];
+        document.querySelectorAll('.guest-card:not(.plus-one-card)').forEach(card => {
+            const guestData = {
+                first_name: card.querySelector('input[name="first_name[]"]').value,
+                last_name: card.querySelector('input[name="last_name[]"]').value,
+                email: card.querySelector('input[name="email[]"]').value,
+                phone: card.querySelector('input[name="phone[]"]').value,
+                menu: card.querySelector('select[name="menu[]"]').value,
+                dietary_requirements: card.querySelector('textarea[name="dietary_requirements[]"]').value || null,
+                needs_hotel: card.querySelector('input[name="needs_hotel[]"]').checked
+            };
+
+            const hasGuest = card.querySelector('input[name="has_plus_one[]"]').checked;
+            let plusOneData = null;
+
+            // If this guest has a plus one, add the plus one's information
+            if (hasGuest) {
+                const plusOneCard = card.nextElementSibling;
+                if (plusOneCard && plusOneCard.classList.contains('plus-one-card')) {
+                    plusOneData = {
+                        first_name: plusOneCard.querySelector('input[name="first_name[]"]').value,
+                        last_name: plusOneCard.querySelector('input[name="last_name[]"]').value,
+                        email: plusOneCard.querySelector('input[name="email[]"]').value,
+                        phone: plusOneCard.querySelector('input[name="phone[]"]').value,
+                        menu: plusOneCard.querySelector('select[name="menu[]"]').value,
+                        dietary_requirements: plusOneCard.querySelector('textarea[name="dietary_requirements[]"]').value || null,
+                        needs_hotel: plusOneCard.querySelector('input[name="needs_hotel[]"]').checked
+                    };
+                }
+            }
+
+            const guest = {
+                guest_data: guestData,
+                has_guest: hasGuest,
+                plus_one_data: plusOneData
+            };
+
+            guests.push(guest);
+        });
+
+        // Detailed console logging
+        console.log('Full guests array:', JSON.stringify(guests, null, 2));
+        console.log('First guest structure:', {
+            guest_data: guests[0].guest_data,
+            has_guest: guests[0].has_guest,
+            plus_one_data: guests[0].plus_one_data
+        });
+
+        try {
+            const response = await fetch('/admin/add-guests/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(guests[0]),
+            });
+
+            console.log('Request payload:', JSON.stringify(guests[0], null, 2));
+            console.log('Response status:', response.status);
+
+            if (response.ok) {
+                // If there are more guests to add, process them sequentially
+                if (guests.length > 1) {
+                    for (let i = 1; i < guests.length; i++) {
+                        console.log(`Sending guest ${i + 1}:`, JSON.stringify(guests[i], null, 2));
+                        const additionalResponse = await fetch('/admin/add-guests/', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(guests[i]),
+                        });
+                        
+                        if (!additionalResponse.ok) {
+                            // If any subsequent guest fails, redirect to the failure page
+                            window.location.href = '/admin/add-guests/failed';
+                            return;
+                        }
+                    }
+                }
+                // All guests were added successfully
+                window.location.href = '/admin/add-guests/success';
+            } else {
+                const error = await response.json();
+                console.error('Server error response:', error);
+                // Redirect to failure page instead of showing alert
+                window.location.href = '/admin/add-guests/failed';
+                button.disabled = false;
+                button.innerHTML = '<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>Save All Guests';
+            }
+        } catch (error) {
+            console.error('Request error:', error);
+            // Redirect to failure page instead of showing alert
+            window.location.href = '/admin/add-guests/failed';
+            button.disabled = false;
+            button.innerHTML = '<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>Save All Guests';
+        }
+    });
+</script>
+{% endblock %} 

@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block title %}Potwierdź obecność{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto p-8 md:p-12">
+    <h1 class="text-3xl font-bold text-gray-800 mb-12 text-center">Potwierdź obecność</h1>
+    
+    <div class="space-y-6">
+        <div>
+            <label for="nameInput" class="block text-sm font-medium text-gray-700 mb-2">Wprowadź swoje imię i nazwisko</label>
+            <input type="text" id="nameInput" name="nameInput" required
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-3"
+                placeholder="np. Taylor Swift albo Dawid Podsiadło">
+        </div>
+        
+        <div id="suggestions" class="hidden space-y-2">
+            <!-- Suggestions will be populated here -->
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+    const nameInput = document.getElementById('nameInput');
+    const suggestionsDiv = document.getElementById('suggestions');
+    let debounceTimer;
+
+    nameInput.addEventListener('input', function(e) {
+        clearTimeout(debounceTimer);
+        const searchTerm = e.target.value.trim();
+        
+        if (searchTerm.length < 2) {
+            suggestionsDiv.classList.add('hidden');
+            return;
+        }
+
+        debounceTimer = setTimeout(() => {
+            fetchSuggestions(searchTerm);
+        }, 300);
+    });
+
+    async function fetchSuggestions(searchTerm) {
+        try {
+            const [firstName, lastName] = searchTerm.split(' ').map(part => part.trim());
+            let url = `/rsvp/search?first_name=${encodeURIComponent(firstName)}`;
+            if (lastName) {
+                url += `&last_name=${encodeURIComponent(lastName)}`;
+            }
+
+            const response = await fetch(url);
+            const guests = await response.json();
+
+            if (guests.length > 0) {
+                suggestionsDiv.innerHTML = guests.map(guest => `
+                    <div class="p-3 border rounded-md hover:bg-gray-50 cursor-pointer" 
+                         onclick="selectGuest(${guest.id}, ${guest.guest_id || 'null'})">
+                        <div class="font-medium">${guest.first_name} ${guest.last_name}</div>
+                    </div>
+                `).join('');
+                suggestionsDiv.classList.remove('hidden');
+            } else {
+                suggestionsDiv.classList.add('hidden');
+            }
+        } catch (error) {
+            console.error('Error fetching suggestions:', error);
+            suggestionsDiv.classList.add('hidden');
+        }
+    }
+
+    function selectGuest(guestId, plusOneId) {
+        const url = plusOneId && plusOneId !== 'null' 
+            ? `/rsvp/form/${guestId}?plus_one_id=${plusOneId}`
+            : `/rsvp/form/${guestId}`;
+        window.location.href = url;
+    }
+
+    // Close suggestions when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!nameInput.contains(e.target) && !suggestionsDiv.contains(e.target)) {
+            suggestionsDiv.classList.add('hidden');
+        }
+    });
+</script>
+{% endblock %} 

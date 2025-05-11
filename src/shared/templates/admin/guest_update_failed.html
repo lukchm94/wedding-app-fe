@@ -1,0 +1,34 @@
+{% extends "admin/header.html" %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-100 flex flex-col items-center justify-center">
+    <div class="bg-white p-8 rounded-lg shadow-lg max-w-md w-full text-center">
+        <div class="mb-6">
+            <svg class="mx-auto h-16 w-16 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 48 48">
+                <circle class="opacity-25" cx="24" cy="24" r="20" stroke-width="4"/>
+                <path class="opacity-75" stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M16 16l16 16m0-16L16 32"/>
+            </svg>
+        </div>
+        
+        <h2 class="text-2xl font-bold text-gray-800 mb-4">
+            Update Failed
+        </h2>
+        
+        <p class="text-gray-600 mb-8">
+            Sorry, there was an error while updating the guest information. Please try again or contact support if the problem persists.
+        </p>
+        
+        <div class="space-y-4">
+            <button onclick="window.history.back()" 
+                    class="block w-full bg-blue-500 text-white px-6 py-3 rounded-md hover:bg-blue-600 font-medium">
+                Try Again
+            </button>
+            
+            <a href="/admin/manage-guests" 
+               class="block w-full bg-gray-200 text-gray-700 px-6 py-3 rounded-md hover:bg-gray-300 font-medium">
+                Return to Guest List
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %} 

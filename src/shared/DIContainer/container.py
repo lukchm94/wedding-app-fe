@@ -3,6 +3,13 @@ from sqlalchemy.orm import Session
 from src.modules.guests.application.create_guest.create_guest_use_case import (
     CreateGuestUseCase,
 )
+from src.modules.guests.application.find_guest.find_guest_use_case import (
+    FindGuestUseCase,
+)
+from src.modules.guests.application.save_rsvp.save_rsvp_use_case import SaveRSVPUseCase
+from src.modules.guests.application.update_guest.update_guest_use_case import (
+    UpdateGuestUseCase,
+)
 from src.modules.guests.domain.repository import GuestRepository
 from src.modules.guests.domain.service import GuestService
 from src.modules.guests.infra.repository.implementation import GuestRepoImpl
@@ -12,6 +19,8 @@ from src.modules.users.domain.token_service import TokenService
 from src.modules.users.domain.user_repository import UserRepository
 from src.modules.users.domain.user_service import UserService
 from src.modules.users.infra.repository.user_repo_impl import UserRepoImpl
+from src.shared.controllers.admin.add_guests import GuestController
+from src.shared.controllers.rsvp.search import SearchController
 from src.shared.database.config import SessionLocal
 from src.shared.utils.logger import Logger, get_logger
 
@@ -34,6 +43,7 @@ class DIContainer:
         # Initialize domain services
         self.register("password_service", PasswordService(self._logger))
         self.register("token_service", TokenService(self._logger))
+        self.register("guest_controller", GuestController(self._logger))
 
     def register(self, name, service):
         """
@@ -61,6 +71,11 @@ class DIContainer:
         guest_repo_impl = GuestRepoImpl(db, self._logger)
         return guest_repo_impl
 
+    def build_guest_service(self, db: Session) -> GuestService:
+        guest_repo = GuestRepoImpl(db, self._logger)
+        guest_service = GuestService(guest_repo)
+        return guest_service
+
     def build_login_use_case(self, db: Session) -> LoginUseCase:
         """
         Build the login use case
@@ -79,15 +94,58 @@ class DIContainer:
         """
         Build the create guest use case
         """
-        guest_repo: GuestRepoImpl = self.build_guest_repo(db)
-        guest_service: GuestService = GuestService(guest_repo)
+        guest_service: GuestService = self.build_guest_service(db)
         create_guest_use_case: CreateGuestUseCase = CreateGuestUseCase(
             guest_service=guest_service, logger=self._logger
         )
         return create_guest_use_case
+
+    def build_update_guest_use_case(self, db: Session) -> UpdateGuestUseCase:
+        """
+        Build the update guest use case
+        """
+        guest_service: GuestService = self.build_guest_service(db)
+        update_guest_use_case: UpdateGuestUseCase = UpdateGuestUseCase(
+            guest_service=guest_service, logger=self._logger
+        )
+        return update_guest_use_case
 
     def get_logger(self) -> Logger:
         """
         Get the logger
         """
         return self._logger
+
+    def build_guest_controller(self) -> GuestController:
+        """
+        Build the guest controller
+        """
+        return GuestController(self._logger)
+
+    def build_find_guest_use_case(self, db: Session) -> FindGuestUseCase:
+        """
+        Build the find guest use case
+        """
+        guest_service: GuestService = self.build_guest_service(db)
+        find_guest_use_case: FindGuestUseCase = FindGuestUseCase(
+            guest_service=guest_service
+        )
+        return find_guest_use_case
+
+    def build_search_controller(self, db: Session) -> SearchController:
+        """
+        Build the search controller
+        """
+        find_guest_use_case: FindGuestUseCase = self.build_find_guest_use_case(db)
+        return SearchController(
+            db=db,
+            find_guest_use_case=find_guest_use_case,
+            logger=self._logger,
+        )
+
+    def build_save_rsvp_use_case(self, db: Session) -> SaveRSVPUseCase:
+        guest_service: GuestService = self.build_guest_service(db)
+        save_rsvp_use_case: SaveRSVPUseCase = SaveRSVPUseCase(
+            logger=self._logger, guest_service=guest_service
+        )
+        return save_rsvp_use_case

@@ -1,0 +1,269 @@
+{% extends "admin/header.html" %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-2xl font-bold mb-6">Edit Guest and Plus One</h1>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <!-- Guest Form -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-xl font-semibold mb-4">Guest Information</h2>
+            <form id="guestForm" class="space-y-4">
+                <input type="hidden" name="id" value="{{ guest.id }}">
+                <input type="hidden" name="guest_id" value="{{ guest.guest_id if guest.guest_id else '' }}">
+                <input type="hidden" name="has_guest" value="{{ 'true' if guest.has_guest else 'false' }}">
+                <input type="hidden" name="menu" value="{{ guest.menu }}">
+                <input type="hidden" name="needs_hotel" value="{{ 'true' if guest.needs_hotel else 'false' }}">
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="guest_first_name" class="block text-sm font-medium text-gray-700">First Name</label>
+                        <input type="text" id="guest_first_name" name="first_name" value="{{ guest.first_name }}" required
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label for="guest_last_name" class="block text-sm font-medium text-gray-700">Last Name</label>
+                        <input type="text" id="guest_last_name" name="last_name" value="{{ guest.last_name }}" required
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+                </div>
+
+                <div>
+                    <label for="guest_email" class="block text-sm font-medium text-gray-700">Email</label>
+                    <input type="email" id="guest_email" name="email" value="{{ guest.email }}" required
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                </div>
+
+                <div>
+                    <label for="guest_phone" class="block text-sm font-medium text-gray-700">Phone</label>
+                    <input type="tel" id="guest_phone" name="phone" value="{{ guest.phone }}" required
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                </div>
+
+                <div>
+                    <label for="guest_menu_choice" class="block text-sm font-medium text-gray-700">Menu Choice</label>
+                    <select id="guest_menu_choice" name="menu" required
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        {% for choice in menu_choices %}
+                        <option value="{{ choice.value }}" {% if guest.menu.value == choice.value %}selected{% endif %}>
+                            {{ choice.label }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div>
+                    <label for="guest_dietary_requirements" class="block text-sm font-medium text-gray-700">Dietary Requirements</label>
+                    <textarea id="guest_dietary_requirements" name="dietary_requirements" rows="2"
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">{{ guest.dietary_requirements }}</textarea>
+                </div>
+
+                <div>
+                    <label for="guest_hotel_accommodation" class="block text-sm font-medium text-gray-700">Hotel Accommodation</label>
+                    <select id="guest_hotel_accommodation" name="needs_hotel" required
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        <option value="true" {% if guest.needs_hotel %}selected{% endif %}>Yes</option>
+                        <option value="false" {% if not guest.needs_hotel %}selected{% endif %}>No</option>
+                    </select>
+                </div>
+            </form>
+        </div>
+
+        <!-- Plus One Form -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-xl font-semibold mb-4">Plus One Information</h2>
+            <form id="plusOneForm" class="space-y-4">
+                <input type="hidden" name="id" value="{{ plus_one.id }}">
+                <input type="hidden" name="guest_id" value="{{ plus_one.guest_id if plus_one.guest_id else '' }}">
+                <input type="hidden" name="has_guest" value="{{ 'true' if plus_one.has_guest else 'false' }}">
+                <input type="hidden" name="menu" value="{{ plus_one.menu }}">
+                <input type="hidden" name="needs_hotel" value="{{ 'true' if plus_one.needs_hotel else 'false' }}">
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="plus_one_first_name" class="block text-sm font-medium text-gray-700">First Name</label>
+                        <input type="text" id="plus_one_first_name" name="first_name" value="{{ plus_one.first_name }}" required
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label for="plus_one_last_name" class="block text-sm font-medium text-gray-700">Last Name</label>
+                        <input type="text" id="plus_one_last_name" name="last_name" value="{{ plus_one.last_name }}" required
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+                </div>
+
+                <div>
+                    <label for="plus_one_email" class="block text-sm font-medium text-gray-700">Email</label>
+                    <input type="email" id="plus_one_email" name="email" value="{{ plus_one.email }}" required
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                </div>
+
+                <div>
+                    <label for="plus_one_phone" class="block text-sm font-medium text-gray-700">Phone</label>
+                    <input type="tel" id="plus_one_phone" name="phone" value="{{ plus_one.phone }}" required
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                </div>
+
+                <div>
+                    <label for="plus_one_menu_choice" class="block text-sm font-medium text-gray-700">Menu Choice</label>
+                    <select id="plus_one_menu_choice" name="menu" required
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        {% for choice in menu_choices %}
+                        <option value="{{ choice.value }}" {% if plus_one.menu.value == choice.value %}selected{% endif %}>
+                            {{ choice.label }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div>
+                    <label for="plus_one_dietary_requirements" class="block text-sm font-medium text-gray-700">Dietary Requirements</label>
+                    <textarea id="plus_one_dietary_requirements" name="dietary_requirements" rows="2"
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">{{ plus_one.dietary_requirements }}</textarea>
+                </div>
+
+                <div>
+                    <label for="plus_one_hotel_accommodation" class="block text-sm font-medium text-gray-700">Hotel Accommodation</label>
+                    <select id="plus_one_hotel_accommodation" name="needs_hotel" required
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        <option value="true" {% if plus_one.needs_hotel %}selected{% endif %}>Yes</option>
+                        <option value="false" {% if not plus_one.needs_hotel %}selected{% endif %}>No</option>
+                    </select>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Combined Submit Button -->
+    <div class="mt-8 flex justify-center">
+        <button id="submitBothForms" class="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 font-medium text-lg">
+            Update Both Guest and Plus One
+        </button>
+    </div>
+</div>
+
+<script>
+    // Phone number formatting for guest
+    const guestPhoneInput = document.getElementById('guest_phone');
+    guestPhoneInput.addEventListener('input', function(e) {
+        let x = e.target.value.replace(/\D/g, '').match(/(\d{0,3})(\d{0,3})(\d{0,3})/);
+        e.target.value = !x[2] ? x[1] : x[1] + '-' + x[2] + (x[3] ? '-' + x[3] : '');
+    });
+
+    // Phone number formatting for plus one
+    const plusOnePhoneInput = document.getElementById('plus_one_phone');
+    plusOnePhoneInput.addEventListener('input', function(e) {
+        let x = e.target.value.replace(/\D/g, '').match(/(\d{0,3})(\d{0,3})(\d{0,3})/);
+        e.target.value = !x[2] ? x[1] : x[1] + '-' + x[2] + (x[3] ? '-' + x[3] : '');
+    });
+
+    // Handle combined form submission
+    document.getElementById('submitBothForms').addEventListener('click', async function() {
+        // Disable the button to prevent double submission
+        this.disabled = true;
+        this.textContent = 'Updating...';
+        
+        // Get form data from both forms
+        const guestForm = document.getElementById('guestForm');
+        const plusOneForm = document.getElementById('plusOneForm');
+        
+        const guestFormData = new FormData(guestForm);
+        const plusOneFormData = new FormData(plusOneForm);
+        
+        // Convert form data to objects and ensure proper types
+        const guestData = Object.fromEntries(guestFormData.entries());
+        const plusOneData = Object.fromEntries(plusOneFormData.entries());
+        
+        // Convert string values to proper types
+        guestData.id = parseInt(guestData.id);
+        guestData.guest_id = guestData.guest_id ? parseInt(guestData.guest_id) : null;
+        guestData.has_guest = guestData.has_guest === 'true';
+        guestData.needs_hotel = guestData.needs_hotel === 'true';
+        
+        plusOneData.id = parseInt(plusOneData.id);
+        plusOneData.guest_id = plusOneData.guest_id ? parseInt(plusOneData.guest_id) : null;
+        plusOneData.has_guest = plusOneData.has_guest === 'true';
+        plusOneData.needs_hotel = plusOneData.needs_hotel === 'true';
+        
+        // Track if both updates were successful
+        let guestUpdateSuccess = false;
+        let plusOneUpdateSuccess = false;
+        let errorMessage = '';
+        
+        try {
+            // Update guest
+            if (guestData.id) {
+                console.log(`Updating guest with ID: ${guestData.id}`);
+                console.log('Guest data:', guestData);
+                const guestResponse = await fetch(`/admin/manage-guests/${guestData.id}/update`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(guestData),
+                });
+                
+                if (guestResponse.ok) {
+                    guestUpdateSuccess = true;
+                    console.log('Guest update successful');
+                } else {
+                    const error = await guestResponse.json();
+                    console.error('Guest update failed:', error);
+                    errorMessage += `Guest update failed: ${error.detail || 'Unknown error'}. `;
+                }
+            } else {
+                console.error('Guest ID is missing or invalid');
+                errorMessage += 'Guest ID is missing or invalid. ';
+            }
+            
+            // Update plus one
+            if (plusOneData.id) {
+                console.log(`Updating plus one with ID: ${plusOneData.id}`);
+                console.log('Plus one data:', plusOneData);
+                const plusOneResponse = await fetch(`/admin/manage-guests/${plusOneData.id}/update`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(plusOneData),
+                });
+                
+                if (plusOneResponse.ok) {
+                    plusOneUpdateSuccess = true;
+                    console.log('Plus one update successful');
+                } else {
+                    const error = await plusOneResponse.json();
+                    console.error('Plus one update failed:', error);
+                    errorMessage += `Plus one update failed: ${error.detail || 'Unknown error'}. `;
+                }
+            } else {
+                console.error('Plus one ID is missing or invalid');
+                errorMessage += 'Plus one ID is missing or invalid. ';
+            }
+            
+            // Handle the results
+            if (guestUpdateSuccess && plusOneUpdateSuccess) {
+                // Both updates successful, redirect to success page
+                console.log('Both updates successful, redirecting to success page');
+                window.location.href = '/admin/manage-guests/update/success';
+            } else if (guestUpdateSuccess || plusOneUpdateSuccess) {
+                // One update successful, show partial success message
+                console.log('Partial update successful');
+                window.location.href = '/admin/manage-guests/update/success';
+            } else {
+                // Both updates failed
+                console.error('Both updates failed');
+                window.location.href = '/admin/manage-guests/update/failed';
+            }
+        } catch (error) {
+            // Handle any unexpected errors
+            console.error('Unexpected error:', error);
+            window.location.href = '/admin/manage-guests/update/failed';
+        } finally {
+            // Re-enable the button
+            this.disabled = false;
+            this.textContent = 'Update Both Guest and Plus One';
+        }
+    });
+</script>
+{% endblock %} 

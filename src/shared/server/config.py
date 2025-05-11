@@ -1,7 +1,7 @@
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
-from src.shared.DIContaner.container import DIContainer
+from src.shared.DIContainer.container import DIContainer
 
 # Templates
 templates = Jinja2Templates(directory="src/shared/templates")

@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}RSVP Submission Details{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto p-6">
+    <h1 class="text-3xl font-bold text-gray-800 mb-8 text-center">{{ title }}</h1>
+    
+    {% if success %}
+        <div class="bg-green-50 border border-green-200 rounded-lg p-6 mb-8">
+            <h2 class="text-2xl font-semibold text-green-700 mb-4 text-center">Dziękujemy za potwierdzenie obecności!</h2>
+            <p class="text-lg text-green-600 text-center">{{ message }}</p>
+        </div>
+
+        <div class="space-y-6">
+            <!-- Main Guest Information Section -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-xl font-semibold text-gray-700 mb-4">Twoje dane</h3>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="text-gray-600 font-medium">Imię i nazwisko:</div>
+                    <div class="text-gray-800">{{ guest.first_name }} {{ guest.last_name }}</div>
+                </div>
+            </div>
+
+            <!-- Main Guest Menu Selection -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-xl font-semibold text-gray-700 mb-4">Twoj wybór menu</h3>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="text-gray-600 font-medium">Wybór menu:</div>
+                    <div class="text-gray-800">{{ guest.menu.value if guest.menu else 'Not selected' }}</div>
+                    
+                    {% if guest.dietary_requirements %}
+                    <div class="text-gray-600 font-medium">Wymagania żywieniowe:</div>
+                    <div class="text-gray-800">{{ guest.dietary_requirements }}</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Main Guest Accommodation -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-xl font-semibold text-gray-700 mb-4">Potrzeba noclegu</h3>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="text-gray-600 font-medium">Potrzeba noclegu:</div>
+                    <div class="text-gray-800">{{ "Tak" if guest.needs_hotel else "Nie" }}</div>
+                </div>
+            </div>
+
+            {% if plus_one %}
+            <!-- Plus One Information Section -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-xl font-semibold text-gray-700 mb-4">Dane osoby towarzyszącej</h3>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="text-gray-600 font-medium">Imię i nazwisko:</div>
+                    <div class="text-gray-800">{{ plus_one.first_name }} {{ plus_one.last_name }}</div>
+                </div>
+            </div>
+
+            <!-- Plus One Menu Selection -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-xl font-semibold text-gray-700 mb-4">Wybór menu osoby towarzyszącej</h3>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="text-gray-600 font-medium">Wybór menu:</div>
+                    <div class="text-gray-800">{{ plus_one.menu.value if plus_one.menu else 'Not selected' }}</div>
+                    
+                    {% if plus_one.dietary_requirements %}
+                    <div class="text-gray-600 font-medium">Wymagania żywieniowe:</div>
+                    <div class="text-gray-800">{{ plus_one.dietary_requirements }}</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Plus One Accommodation -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-xl font-semibold text-gray-700 mb-4">Potrzeba noclegu osoby towarzyszącej</h3>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="text-gray-600 font-medium">Potrzeba noclegu:</div>
+                    <div class="text-gray-800">{{ "Tak" if plus_one.needs_hotel else "Nie" }}</div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    {% else %}
+        <div class="bg-red-50 border border-red-200 rounded-lg p-6">
+            <h2 class="text-2xl font-semibold text-red-700 mb-4 text-center">Error</h2>
+            <p class="text-lg text-red-600 text-center">{{ message }}</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %} 
