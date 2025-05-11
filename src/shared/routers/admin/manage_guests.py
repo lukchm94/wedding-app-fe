@@ -1,21 +1,18 @@
-from typing import Annotated, List, Optional, Union
+from typing import Annotated, Optional, Union
 
 from fastapi import APIRouter, Depends, Request, status
+from fastapi.encoders import jsonable_encoder
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from sqlalchemy.orm import Session
 
-from src.modules.guests.application.create_guest.create_guest_use_case import (
-    CreateGuestUseCase,
-)
 from src.modules.guests.application.find_guest.find_guest_use_case import (
     FindGuestUseCase,
 )
 from src.modules.guests.application.update_guest.update_guest_use_case import (
     UpdateGuestUseCase,
 )
-from src.modules.guests.domain.guest import Guest
+from src.modules.guests.domain.guest import Guest, GuestWithRsvpStatus
 from src.shared.auth.authenticate import admin_dependency
-from src.shared.controllers.admin.add_guests import GuestController, GuestCreate
 from src.shared.database.config import get_db
 from src.shared.server.config import di_container, templates
 from src.shared.utils.__validations import MenuChoices
@@ -67,7 +64,9 @@ async def search_guests(
             f"Searching for guests with guest_id: {guest_id}, first_name: {first_name}, last_name: {last_name}"
         )
         # Search for guests
-        guest: Union[Guest, None] = find_guest.execute(guest_id, first_name, last_name)
+        guest: Union[GuestWithRsvpStatus, None] = find_guest.execute(
+            guest_id, first_name, last_name
+        )
 
         if not guest:
             # Create a more detailed error message based on search criteria
@@ -113,7 +112,7 @@ async def search_guests(
         return JSONResponse(
             content={
                 "status": "success",
-                "guests": guest_dict,
+                "guests": jsonable_encoder(guest_dict),
             },
             status_code=200,
         )
@@ -145,7 +144,7 @@ async def edit_guest_page(
         find_guest: FindGuestUseCase = di_container.build_find_guest_use_case(db)
         guest: Guest = find_guest.execute(guest_id=guest_id)
 
-        # Get all menu choices from the enum
+        # Get all menu choices from the enum (value/label for correct select rendering)
         menu_choices = [
             {"value": choice.value, "label": choice.value} for choice in MenuChoices
         ]

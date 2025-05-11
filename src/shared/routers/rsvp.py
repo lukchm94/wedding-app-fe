@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Union
 
 from fastapi import APIRouter, Depends, Form, Request, status
 from fastapi.responses import HTMLResponse, JSONResponse
@@ -9,15 +9,17 @@ from src.modules.guests.application.save_rsvp import (
     SavedGuests,
     SaveRSVPUseCase,
 )
-from src.modules.guests.domain.guest import Guest
+from src.modules.guests.domain.guest import Guest, GuestWithRsvpStatus
+from src.shared.controllers.rsvp.form_input import FormInput
 from src.shared.controllers.rsvp.search import SearchController
 from src.shared.database.config import get_db
 from src.shared.server.config import di_container, templates
-from src.shared.utils.__validations import MenuChoices
+from src.shared.utils.__validations import MenuChoices, RsvpStatus
 from src.shared.utils.logger import logger
 
 router = APIRouter(prefix="/rsvp", tags=["rsvp"])
 
+# TODO: fix menu mapping to have the conversion in one place not in the router
 MENU_MAPPING = {
     "meat": MenuChoices.MEAT,
     "vegetarian": MenuChoices.VEGETARIAN,
@@ -63,22 +65,33 @@ async def search_guests(
 
 @router.get("/form/{guest_id}", response_class=HTMLResponse)
 async def rsvp_form(
-    request: Request,
+    req: Request,
     guest_id: int,
     plus_one_id: Optional[int] = None,
     db: Session = Depends(get_db),
 ):
-    """Show RSVP form pre-filled with guest data."""
+    """Show RSVP form pre-filled with guest data or show submitted RSVP if already confirmed."""
     search_controller: SearchController = di_container.build_search_controller(db)
     process_rsvp_form: dict = search_controller.process_rsvp_form(
-        request, guest_id, plus_one_id
+        req, guest_id, plus_one_id
     )
-    logger.info(f"process_rsvp_form: {process_rsvp_form}")
-    return (
-        templates.TemplateResponse("rsvp.html", process_rsvp_form)
-        if process_rsvp_form
-        else templates.TemplateResponse("rsvp_search.html", process_rsvp_form)
-    )
+
+    if not process_rsvp_form:
+        return templates.TemplateResponse("rsvp_search.html", {"request": req})
+
+    guest: GuestWithRsvpStatus = process_rsvp_form.get("guest")
+    plus_one: Union[GuestWithRsvpStatus, None] = process_rsvp_form.get("plus_one")
+
+    if guest and guest.rsvp_status == RsvpStatus.CONFIRMED.value:
+        form_input: FormInput = FormInput(guest=guest, plus_one=plus_one)
+
+        return templates.TemplateResponse(
+            "rsvp_submitted.html",
+            form_input.as_dict(req),
+            status_code=status.HTTP_200_OK,
+        )
+
+    return templates.TemplateResponse("rsvp.html", process_rsvp_form)
 
 
 @router.post("/form/{guest_id}", response_class=HTMLResponse)

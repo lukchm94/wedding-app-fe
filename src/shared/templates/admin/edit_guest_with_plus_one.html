@@ -45,7 +45,7 @@
                     <select id="guest_menu_choice" name="menu" required
                         class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
                         {% for choice in menu_choices %}
-                        <option value="{{ choice.value }}" {% if guest.menu_choice == choice.value %}selected{% endif %}>
+                        <option value="{{ choice.value }}" {% if guest.menu.value == choice.value %}selected{% endif %}>
                             {{ choice.label }}
                         </option>
                         {% endfor %}
@@ -109,7 +109,7 @@
                     <select id="plus_one_menu_choice" name="menu" required
                         class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
                         {% for choice in menu_choices %}
-                        <option value="{{ choice.value }}" {% if plus_one.menu_choice == choice.value %}selected{% endif %}>
+                        <option value="{{ choice.value }}" {% if plus_one.menu.value == choice.value %}selected{% endif %}>
                             {{ choice.label }}
                         </option>
                         {% endfor %}

@@ -1,12 +1,13 @@
+from datetime import datetime
 from logging import Logger
 from typing import Optional, Union
 
 from sqlalchemy.orm import Session
 from typing_extensions import override
 
-from src.shared.database.models.guest import Guest as GuestModel
-
-from ...domain.guest import Guest
+from .....shared.database.models.guest import Guest as GuestModel
+from .....shared.utils.__validations import RsvpStatus
+from ...domain.guest import Guest, GuestWithRsvpStatus
 from ...domain.repository import GuestRepository
 
 
@@ -64,17 +65,19 @@ class GuestRepoImpl(GuestRepository):
         return Guest.from_orm(guest_model)
 
     @override
-    def get_guest_by_id(self, guest_id: int) -> Optional[GuestModel]:
+    def get_guest_by_id(self, guest_id: int) -> Optional[GuestWithRsvpStatus]:
         """Retrieve a guest by ID."""
         guest: Union[GuestModel, None] = (
             self.db.query(GuestModel).filter(GuestModel.id == guest_id).first()
         )
         if not guest:
             return None
-        return Guest.from_orm(guest)
+        return GuestWithRsvpStatus.from_orm(guest)
 
     @override
-    def update_guest(self, guest: Guest) -> Guest:
+    def update_guest(
+        self, guest: Guest, status: RsvpStatus, submitted_at: datetime
+    ) -> Guest:
         """Update an existing guest."""
         existing_guest = (
             self.db.query(GuestModel).filter(GuestModel.id == guest.id).first()
@@ -97,6 +100,8 @@ class GuestRepoImpl(GuestRepository):
             "hotel_accommodation": guest_dict["needs_hotel"],
             "has_guest": guest_dict["has_guest"],
             "guest_id": guest_dict["guest_id"],
+            "rsvp_status": status.value,
+            "rsvp_date": submitted_at,
         }
 
         self.logger.debug(f"ORM guest dict: {orm_guest_dict}")
@@ -119,7 +124,9 @@ class GuestRepoImpl(GuestRepository):
             self.db.commit()
 
     @override
-    def find_guest_by_name(self, first_name: str, last_name: str) -> Optional[Guest]:
+    def find_guest_by_name(
+        self, first_name: str, last_name: str
+    ) -> Optional[GuestWithRsvpStatus]:
         """Find a guest by first and last name."""
         guest_model: Union[GuestModel, None] = (
             self.db.query(GuestModel)
@@ -134,7 +141,7 @@ class GuestRepoImpl(GuestRepository):
         if guest_model is None:
             return None
 
-        guest: Guest = Guest.from_orm(guest_model)
+        guest: GuestWithRsvpStatus = GuestWithRsvpStatus.from_orm(guest_model)
         self.logger.debug(f"\n\nGuest: {guest}\n\n")
         return guest
 

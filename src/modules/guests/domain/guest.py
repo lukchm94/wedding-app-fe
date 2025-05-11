@@ -1,13 +1,14 @@
 from __future__ import annotations
 
 import re
+from datetime import datetime
 from typing import Optional
 
 from pydantic import BaseModel, EmailStr, Field, model_validator
 
-from src.shared.database.models.guest import Guest as GuestModel
-from src.shared.utils.__validations import MenuChoices
-from src.shared.utils.logger import logger
+from ....shared.database.models.guest import Guest as GuestModel
+from ....shared.utils.__validations import MenuChoices, RsvpStatus
+from ....shared.utils.logger import logger
 
 
 class Guest(BaseModel):
@@ -81,4 +82,35 @@ class Guest(BaseModel):
             needs_hotel=data.hotel_accommodation,
             phone=data.phone_number,
             email=data.email,
+        )
+
+
+class GuestWithRsvpStatus(Guest):
+    """
+    Represents a guest in the system, specifically for ORM operations.
+    """
+
+    rsvp_status: RsvpStatus = Field(..., description="RSVP status of the guest")
+    rsvp_date: Optional[datetime] = Field(
+        default=None, description="Date and time when the RSVP was submitted"
+    )
+
+    @staticmethod
+    def from_orm(data: GuestModel) -> GuestWithRsvpStatus:
+        """
+        Create a GuestWithRsvpStatus instance from an ORM model.
+        """
+        return GuestWithRsvpStatus(
+            id=data.id,
+            first_name=data.first_name,
+            last_name=data.last_name,
+            has_guest=data.has_guest,
+            guest_id=data.guest_id,
+            menu=MenuChoices(data.menu_choice),
+            dietary_requirements=data.dietary_restrictions,
+            needs_hotel=data.hotel_accommodation,
+            phone=data.phone_number,
+            email=data.email,
+            rsvp_status=RsvpStatus(data.rsvp_status),
+            rsvp_date=data.rsvp_date,
         )

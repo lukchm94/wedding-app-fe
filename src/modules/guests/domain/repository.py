@@ -1,17 +1,21 @@
 from abc import ABC, abstractmethod
+from datetime import datetime
 from typing import Optional
 
-from .guest import Guest
+from ....shared.utils.__validations import RsvpStatus
+from .guest import Guest, GuestWithRsvpStatus
 
 
 class GuestRepository(ABC):
     @abstractmethod
-    def get_guest_by_id(self, guest_id: int) -> Optional[Guest]:
+    def get_guest_by_id(self, guest_id: int) -> Optional[GuestWithRsvpStatus]:
         """Retrieve a guest by ID."""
         pass
 
     @abstractmethod
-    def find_guest_by_name(self, first_name: str, last_name: str) -> Optional[Guest]:
+    def find_guest_by_name(
+        self, first_name: str, last_name: str
+    ) -> Optional[GuestWithRsvpStatus]:
         """Find a guest by first and last name."""
         pass
 
@@ -21,7 +25,9 @@ class GuestRepository(ABC):
         pass
 
     @abstractmethod
-    def update_guest(self, guest: Guest) -> Guest:
+    def update_guest(
+        self, guest: Guest, status: RsvpStatus, submitted_at: datetime
+    ) -> Guest:
         """Update an existing guest."""
         pass
 

@@ -1,8 +1,8 @@
 from typing import Optional, Union
 
-from src.modules.guests.domain.guest import Guest
-from src.modules.guests.domain.service import GuestService
-from src.shared.utils.logger import logger
+from .....shared.utils.logger import logger
+from ...domain.guest import Guest, GuestWithRsvpStatus
+from ...domain.service import GuestService
 
 
 class FindGuestUseCase:
@@ -14,7 +14,7 @@ class FindGuestUseCase:
         guest_id: Optional[int] = None,
         first_name: Optional[str] = None,
         last_name: Optional[str] = None,
-    ) -> Union[Guest, None]:
+    ) -> Union[GuestWithRsvpStatus, None]:
         """
         Find guests either by ID or by name.
 
@@ -34,7 +34,9 @@ class FindGuestUseCase:
         if guest_id is not None and isinstance(guest_id, int):
             return self.guest_service.get_guest(guest_id)
 
-        guest: Guest = self.guest_service.find_guest_by_name(first_name, last_name)
+        guest: GuestWithRsvpStatus = self.guest_service.find_guest_by_name(
+            first_name, last_name
+        )
         return guest
 
     def find_in_session(self, first_name: str) -> list[Guest]:

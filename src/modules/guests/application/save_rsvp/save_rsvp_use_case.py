@@ -1,7 +1,8 @@
+from datetime import datetime
 from logging import Logger
-from typing import Optional, Union
+from typing import Final, Optional
 
-from .....shared.utils.__validations import MenuChoices
+from .....shared.utils.__validations import MenuChoices, RsvpStatus
 from ...domain.guest import Guest
 from ...domain.service import GuestService
 from .input.rsvp_form import ProcessedRSVPForm, RSVPFormData
@@ -19,23 +20,30 @@ class SaveRSVPUseCase:
     def execute(
         self, rsvp_form: RSVPFormData, guest_id: int, plus_one_id: Optional[int]
     ) -> SavedGuests:
+        submitted_at: Final[datetime] = datetime.now()
 
         processed_form: ProcessedRSVPForm = self._process_form(
             rsvp_form, guest_id, plus_one_id
         )
 
-        main_guest_updated: Guest = self._update_guest(processed_form.guest)
+        guest_updated: Guest = self._update_guest(processed_form.guest, submitted_at)
 
         if processed_form.plus_one is not None:
-            plus_one_updated: Guest = self._update_guest(processed_form.plus_one)
-            return SavedGuests(guest=main_guest_updated, plus_one=plus_one_updated)
+            plus_one_updated: Guest = self._update_guest(
+                processed_form.plus_one, submitted_at
+            )
+            return SavedGuests(guest=guest_updated, plus_one=plus_one_updated)
 
-        return SavedGuests(guest=main_guest_updated, plus_one=None)
+        return SavedGuests(guest=guest_updated, plus_one=None)
 
-    def _update_guest(self, guest: Guest) -> Guest:
+    def _update_guest(self, guest: Guest, submitted_at: datetime) -> Guest:
         self.logger.info(f"Updating information for guest: {guest}")
-        updated_guest: Guest = self.guest_service.update_guest(guest)
-        self.logger.info(f"[OK]: successfully updated guest: {updated_guest}")
+        updated_guest: Guest = self.guest_service.update_guest(
+            guest, RsvpStatus.CONFIRMED, submitted_at
+        )
+        self.logger.info(
+            f"[OK]: successfully updated guest: {updated_guest}. With status: {RsvpStatus.CONFIRMED.value}, submitted at: {submitted_at}"
+        )
         return updated_guest
 
     def _process_form(

@@ -1,6 +1,8 @@
-from typing import Any
+from datetime import datetime
+from typing import Union
 
-from ..domain.guest import Guest
+from ....shared.utils.__validations import RsvpStatus
+from ..domain.guest import Guest, GuestWithRsvpStatus
 from ..infra.repository.implementation import GuestRepoImpl
 
 
@@ -8,7 +10,7 @@ class GuestService:
     def __init__(self, guest_repository: GuestRepoImpl) -> None:
         self.guest_repository: GuestRepoImpl = guest_repository
 
-    def get_guest(self, guest_id: int) -> Any:
+    def get_guest(self, guest_id: int) -> Union[GuestWithRsvpStatus, None]:
         try:
             return self.guest_repository.get_guest_by_id(guest_id)
         except ValueError:
@@ -17,10 +19,14 @@ class GuestService:
     def create_guest(self, guest_data: dict) -> Guest:
         return self.guest_repository.create_guest(guest_data)
 
-    def update_guest(self, guest: Guest) -> Guest:
-        return self.guest_repository.update_guest(guest)
+    def update_guest(
+        self, guest: Guest, status: RsvpStatus, submitted_at: datetime
+    ) -> Guest:
+        return self.guest_repository.update_guest(guest, status, submitted_at)
 
-    def find_guest_by_name(self, first_name: str, last_name: str) -> Guest:
+    def find_guest_by_name(
+        self, first_name: str, last_name: str
+    ) -> GuestWithRsvpStatus:
         return self.guest_repository.find_guest_by_name(first_name, last_name)
 
     def delete_guest(self, guest_id: int) -> None:
