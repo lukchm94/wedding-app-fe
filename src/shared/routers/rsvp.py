@@ -1,50 +1,48 @@
-import json
-from typing import List, Optional, Union
+from typing import Optional
 
-from fastapi import APIRouter, Depends, Form, HTTPException, Request
-from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
+from fastapi import APIRouter, Depends, Form, Request, status
+from fastapi.responses import HTMLResponse, JSONResponse
 from sqlalchemy.orm import Session
 
-from src.modules.guests.application.find_guest.find_guest_use_case import (
-    FindGuestUseCase,
+from src.modules.guests.application.save_rsvp import (
+    RSVPFormData,
+    SavedGuests,
+    SaveRSVPUseCase,
 )
 from src.modules.guests.domain.guest import Guest
-from src.modules.guests.domain.service import GuestService
-from src.modules.guests.infra.repository.implementation import GuestRepoImpl
 from src.shared.controllers.rsvp.search import SearchController
 from src.shared.database.config import get_db
-from src.shared.database.models.guest import Guest as GuestModel
 from src.shared.server.config import di_container, templates
 from src.shared.utils.__validations import MenuChoices
 from src.shared.utils.logger import logger
 
 router = APIRouter(prefix="/rsvp", tags=["rsvp"])
 
+MENU_MAPPING = {
+    "meat": MenuChoices.MEAT,
+    "vegetarian": MenuChoices.VEGETARIAN,
+    "vegan": MenuChoices.VEGAN,
+    "menu mięsne": MenuChoices.MEAT,
+    "menu wegetariańskie": MenuChoices.VEGETARIAN,
+    "menu wegańskie": MenuChoices.VEGAN,
+}
+
+
+def get_menu_choice(menu_value: str) -> str:
+    if not menu_value:
+        return None
+    menu_value = menu_value.lower()
+
+    try:
+        return MenuChoices(menu_value).value
+    except ValueError:
+        return MENU_MAPPING.get(menu_value, MenuChoices.MEAT).value
+
 
 @router.get("/", response_class=HTMLResponse)
 async def rsvp_search(request: Request):
     """Landing page with search functionality."""
-    logger.info(f"rsvp_search")
     return templates.TemplateResponse("rsvp_search.html", {"request": request})
-
-
-@router.get("/form/{guest_id}", response_class=HTMLResponse)
-async def rsvp_form(
-    request: Request,
-    guest_id: int,
-    plus_one_id: Optional[int] = None,
-    db: Session = Depends(get_db),
-):
-    """Show RSVP form pre-filled with guest data."""
-    search_controller: SearchController = di_container.build_search_controller(db)
-    process_rsvp_form: dict = search_controller.process_rsvp_form(
-        request, guest_id, plus_one_id
-    )
-    logger.info(f"process_rsvp_form: {process_rsvp_form}")
-    return templates.TemplateResponse(
-        "rsvp.html",
-        process_rsvp_form,
-    )
 
 
 @router.get("/search", response_class=JSONResponse)
@@ -63,65 +61,92 @@ async def search_guests(
     return results
 
 
+@router.get("/form/{guest_id}", response_class=HTMLResponse)
+async def rsvp_form(
+    request: Request,
+    guest_id: int,
+    plus_one_id: Optional[int] = None,
+    db: Session = Depends(get_db),
+):
+    """Show RSVP form pre-filled with guest data."""
+    search_controller: SearchController = di_container.build_search_controller(db)
+    process_rsvp_form: dict = search_controller.process_rsvp_form(
+        request, guest_id, plus_one_id
+    )
+    logger.info(f"process_rsvp_form: {process_rsvp_form}")
+    return (
+        templates.TemplateResponse("rsvp.html", process_rsvp_form)
+        if process_rsvp_form
+        else templates.TemplateResponse("rsvp_search.html", process_rsvp_form)
+    )
+
+
 @router.post("/form/{guest_id}", response_class=HTMLResponse)
 async def rsvp_submit(
     request: Request,
     guest_id: int,
-    hasGuest: str = Form(...),
+    plus_one_id: Optional[int],
+    firstName: str = Form(...),
+    lastName: str = Form(...),
     menu: str = Form(...),
     dietaryRequirements: Optional[str] = Form(None),
-    needsHotel: str = Form(...),
     phone: str = Form(...),
     email: str = Form(...),
+    needsHotel: bool = Form(...),
+    hasGuest: Optional[bool] = Form(None),
+    plusOneFirstName: Optional[str] = Form(None),
+    plusOneLastName: Optional[str] = Form(None),
+    plusOneMenu: Optional[str] = Form(None),
+    plusOneDietaryRequirements: Optional[str] = Form(None),
+    plusOnePhone: Optional[str] = Form(None),
+    plusOneEmail: Optional[str] = Form(None),
     db: Session = Depends(get_db),
 ):
     """
     Handle RSVP form submission for a specific guest.
     """
     try:
-        guest_repo = GuestRepoImpl(db, logger)
-        guest_service = GuestService(guest_repo)
-        find_guest_use_case = FindGuestUseCase(guest_service)
+        save_rsvp_use_case: SaveRSVPUseCase = di_container.build_save_rsvp_use_case(db)
 
-        existing_guest = find_guest_use_case.execute(guest_id=guest_id)
-        if not existing_guest:
-            raise HTTPException(status_code=404, detail="Guest not found")
+        rsvp_form: RSVPFormData = RSVPFormData(
+            first_name=firstName,
+            last_name=lastName,
+            menu=get_menu_choice(menu),
+            dietary_requirements=dietaryRequirements,
+            phone=phone,
+            email=email,
+            needs_hotel=needsHotel,
+            has_guest=hasGuest,
+            plus_one_first_name=plusOneFirstName,
+            plus_one_last_name=plusOneLastName,
+            plus_one_menu=get_menu_choice(plusOneMenu) if plusOneMenu else None,
+            plus_one_dietary_requirements=plusOneDietaryRequirements,
+            plus_one_phone=plusOnePhone,
+            plus_one_email=plusOneEmail,
+        )
 
-        # Update guest information
-        existing_guest.has_guest = hasGuest == "yes"
-        existing_guest.menu = MenuChoices(menu)
-        existing_guest.dietary_requirements = dietaryRequirements
-        existing_guest.needs_hotel = needsHotel == "yes"
-        existing_guest.phone = phone
-        existing_guest.email = email
-
-        # Update the guest in the database
-        updated_guest = guest_service.update_guest(existing_guest)
-
-        # Update RSVP status
-        guest_model = db.query(GuestModel).filter(GuestModel.id == guest_id).first()
-        if guest_model:
-            guest_model.rsvp_status = "confirmed"
-            db.commit()
-
-        logger.info(f"Updated guest RSVP: {updated_guest}")
+        guests_saved: SavedGuests = save_rsvp_use_case.execute(
+            rsvp_form, guest_id, plus_one_id
+        )
 
         return templates.TemplateResponse(
             "rsvp_completed.html",
             {
                 "request": request,
-                "message": "Dziękujemy za potwierdzenie obecności!",
+                "title": guests_saved.formatted_names,
+                "message": guests_saved.message,
                 "success": True,
             },
+            status_code=status.HTTP_200_OK,
         )
     except Exception as e:
         logger.error(f"Error processing RSVP: {str(e)}")
         return templates.TemplateResponse(
-            "rsvp.html",
+            "home.html",
             {
                 "request": request,
-                "guest": existing_guest if "existing_guest" in locals() else None,
                 "message": f"Wystąpił błąd podczas przetwarzania formularza: {str(e)}",
                 "success": False,
             },
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )

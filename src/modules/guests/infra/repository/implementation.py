@@ -74,7 +74,7 @@ class GuestRepoImpl(GuestRepository):
         return Guest.from_orm(guest)
 
     @override
-    def update_guest(self, guest: Guest) -> GuestModel:
+    def update_guest(self, guest: Guest) -> Guest:
         """Update an existing guest."""
         existing_guest = (
             self.db.query(GuestModel).filter(GuestModel.id == guest.id).first()
@@ -84,7 +84,7 @@ class GuestRepoImpl(GuestRepository):
             raise ValueError(f"Guest with ID {guest.id} not found.")
 
         # Convert the Guest domain model to a dictionary
-        guest_dict = guest.dict()
+        guest_dict: dict = guest.model_dump()
 
         # Map the domain model fields to the ORM model fields
         orm_guest_dict = {
@@ -107,7 +107,8 @@ class GuestRepoImpl(GuestRepository):
 
         self.db.commit()
         self.db.refresh(existing_guest)
-        return existing_guest
+
+        return guest
 
     @override
     def delete_guest(self, guest_id: int) -> None:

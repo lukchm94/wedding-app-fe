@@ -6,6 +6,7 @@ from src.modules.guests.application.create_guest.create_guest_use_case import (
 from src.modules.guests.application.find_guest.find_guest_use_case import (
     FindGuestUseCase,
 )
+from src.modules.guests.application.save_rsvp.save_rsvp_use_case import SaveRSVPUseCase
 from src.modules.guests.application.update_guest.update_guest_use_case import (
     UpdateGuestUseCase,
 )
@@ -70,6 +71,11 @@ class DIContainer:
         guest_repo_impl = GuestRepoImpl(db, self._logger)
         return guest_repo_impl
 
+    def build_guest_service(self, db: Session) -> GuestService:
+        guest_repo = GuestRepoImpl(db, self._logger)
+        guest_service = GuestService(guest_repo)
+        return guest_service
+
     def build_login_use_case(self, db: Session) -> LoginUseCase:
         """
         Build the login use case
@@ -88,8 +94,7 @@ class DIContainer:
         """
         Build the create guest use case
         """
-        guest_repo: GuestRepoImpl = self.build_guest_repo(db)
-        guest_service: GuestService = GuestService(guest_repo)
+        guest_service: GuestService = self.build_guest_service(db)
         create_guest_use_case: CreateGuestUseCase = CreateGuestUseCase(
             guest_service=guest_service, logger=self._logger
         )
@@ -99,8 +104,7 @@ class DIContainer:
         """
         Build the update guest use case
         """
-        guest_repo: GuestRepoImpl = self.build_guest_repo(db)
-        guest_service: GuestService = GuestService(guest_repo)
+        guest_service: GuestService = self.build_guest_service(db)
         update_guest_use_case: UpdateGuestUseCase = UpdateGuestUseCase(
             guest_service=guest_service, logger=self._logger
         )
@@ -122,8 +126,7 @@ class DIContainer:
         """
         Build the find guest use case
         """
-        guest_repo: GuestRepoImpl = self.build_guest_repo(db)
-        guest_service: GuestService = GuestService(guest_repo)
+        guest_service: GuestService = self.build_guest_service(db)
         find_guest_use_case: FindGuestUseCase = FindGuestUseCase(
             guest_service=guest_service
         )
@@ -139,3 +142,10 @@ class DIContainer:
             find_guest_use_case=find_guest_use_case,
             logger=self._logger,
         )
+
+    def build_save_rsvp_use_case(self, db: Session) -> SaveRSVPUseCase:
+        guest_service: GuestService = self.build_guest_service(db)
+        save_rsvp_use_case: SaveRSVPUseCase = SaveRSVPUseCase(
+            logger=self._logger, guest_service=guest_service
+        )
+        return save_rsvp_use_case
