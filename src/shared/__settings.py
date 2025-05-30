@@ -1,4 +1,27 @@
+from pathlib import Path
+from typing import Any, Dict
+
 from pydantic_settings import BaseSettings
+
+
+class TextSettings(BaseSettings):
+    # Use project root relative paths
+    PROJECT_ROOT: Path = Path(__file__).parent.parent.parent
+    PATH: str = str(PROJECT_ROOT / "src/shared/static/text")
+    ITINERARY_FILE: str = "itinerary.json"
+    FULL_PATH: str = str(PROJECT_ROOT / "src/shared/static/text/itinerary.json")
+    ITINERARY_KEY: str = "itinerary"
+
+    class Config:
+        env_prefix = "TEXT_"
+
+
+class ImageSettings(BaseSettings):
+    PATH: str = "src/shared/static/images/"
+
+
+class IconsSettings(BaseSettings):
+    PATH: str = "src/shared/static/icons/"
 
 
 class ImageBannerSettings(BaseSettings):
@@ -25,6 +48,12 @@ class Settings(BaseSettings):
 
     # Image Banner Settings
     image_banner: ImageBannerSettings = ImageBannerSettings()
+    # Text Settings
+    text: TextSettings = TextSettings()
+    # Image Settings
+    image: ImageSettings = ImageSettings()
+    # Icons Settings
+    icons: IconsSettings = IconsSettings()
 
     # URLs
     PLACE_IG_LINK: str
@@ -34,10 +63,10 @@ class Settings(BaseSettings):
         env_file = ".env"
         extra = "allow"  # Allow extra fields from .env file
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, **kwargs: Dict[str, Any]):
+        super().__init__(**kwargs)  # type: ignore
         if not self.DATABASE_URL:
-            self.DATABASE_URL = f"mysql+pymysql://{self.MYSQL_USER}:{self.MYSQL_PASSWORD}@{self.MYSQL_SERVER}:{self.MYSQL_PORT}/{self.MYSQL_DB}"
+            self.DATABASE_URL = f"mysql+pymysql://{self.MYSQL_USER}:{self.MYSQL_PASSWORD}@{self.MYSQL_SERVER}:{self.MYSQL_PORT}/{self.MYSQL_DB}"  # type: ignore
 
 
 settings = Settings()

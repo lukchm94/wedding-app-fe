@@ -21,6 +21,7 @@ from src.modules.users.domain.token_service import TokenService
 from src.modules.users.domain.user_service import UserService
 from src.modules.users.infra.repository.user_repo_impl import UserRepoImpl
 from src.shared.controllers.admin.add_guests import GuestController
+from src.shared.controllers.itinerary.get_elements import ItineraryGetElementsController
 from src.shared.controllers.rsvp.search import SearchController
 from src.shared.database.config import SessionLocal
 from src.shared.utils.logger import Logger, get_logger
@@ -152,3 +153,9 @@ class DIContainer:
             logger=self._logger, guest_service=guest_service
         )
         return save_rsvp_use_case
+
+    def build_itinerary_get_elements_controller(self) -> ItineraryGetElementsController:
+        """
+        Build the itinerary get elements controller
+        """
+        return ItineraryGetElementsController(self._logger)
