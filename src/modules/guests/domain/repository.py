@@ -35,3 +35,8 @@ class GuestRepository(ABC):
     def delete_guest(self, guest_id: int) -> None:
         """Delete a guest by ID."""
         pass
+
+    @abstractmethod
+    def find_in_session(self, first_name: str) -> list[Guest]:
+        """Find guests in the session by first name."""
+        pass

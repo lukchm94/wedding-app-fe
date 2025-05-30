@@ -1,18 +1,19 @@
 from enum import Enum
+from typing import Any, Dict, List
 
 
 class ValidationEnum(Enum):
     """ValidationEnum is a custom Parent class used in specific validations / configs inside the package."""
 
     @classmethod
-    def list(cls) -> list:
+    def list(cls) -> List[Any]:
         """Returns exact list of Enum values from the class"""
         return list(map(lambda c: c.value, cls))
 
     @classmethod
-    def to_list(cls) -> list:
+    def to_list(cls) -> List[Any]:
         """Converts the values and always returns a list of a single objects"""
-        elements = []
+        elements: list[Any] = []
         for id in cls:
             elements.extend(id.value)
         return elements
@@ -26,6 +27,6 @@ class ValidationEnum(Enum):
         return separator.join([str(id) for id in cls.list()])
 
     @classmethod
-    def to_dict(cls) -> dict:
+    def to_dict(cls) -> Dict[str, Any]:
         """Returns Enums as a data dictionary {Enum.element.name: Enum.element.value}"""
         return {member.name: member.value for member in cls}

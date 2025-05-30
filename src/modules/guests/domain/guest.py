@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import re
 from datetime import datetime
-from typing import Optional
+from typing import Any, Dict, Optional
 
 from pydantic import BaseModel, EmailStr, Field, model_validator
 
@@ -52,6 +52,7 @@ class Guest(BaseModel):
             logger.warning(
                 f"Guest ID must be provided if 'has_guest' is True. Forcing guest ID to 0. for guest: {self.first_name} {self.last_name} {self.email}"
             )
+            # assert self.id is not None, "Guest ID must be set if has_guest is True"
             self.guest_id = 0
 
         self.first_name = self.first_name.lower().capitalize()
@@ -60,28 +61,30 @@ class Guest(BaseModel):
         return self
 
     @classmethod
-    def from_dict(cls, data: dict) -> Guest:
+    def from_dict(cls, data: Dict[str, Any]) -> Guest:
         """
         Create a Guest instance from a dictionary.
         """
         return cls(**data)
 
     @staticmethod
-    def from_orm(data: GuestModel) -> Guest:
+    def from_orm(obj: GuestModel) -> "Guest":  # type: ignore
         """
         Create a Guest instance from an ORM model.
         """
+        assert isinstance(obj, GuestModel)
+        assert obj.phone_number
         return Guest(
-            id=data.id,
-            first_name=data.first_name,
-            last_name=data.last_name,
-            has_guest=data.has_guest,
-            guest_id=data.guest_id,
-            menu=MenuChoices(data.menu_choice),
-            dietary_requirements=data.dietary_restrictions,
-            needs_hotel=data.hotel_accommodation,
-            phone=data.phone_number,
-            email=data.email,
+            id=obj.id,
+            first_name=obj.first_name,
+            last_name=obj.last_name,
+            has_guest=obj.has_guest if obj.has_guest is not None else False,
+            guest_id=obj.guest_id,
+            menu=MenuChoices(obj.menu_choice),
+            dietary_requirements=obj.dietary_restrictions,
+            needs_hotel=obj.hotel_accommodation,
+            phone=obj.phone_number,
+            email=obj.email,
         )
 
 
@@ -96,21 +99,19 @@ class GuestWithRsvpStatus(Guest):
     )
 
     @staticmethod
-    def from_orm(data: GuestModel) -> GuestWithRsvpStatus:
+    def from_orm(obj: GuestModel) -> "GuestWithRsvpStatus":  # type: ignore
         """
         Create a GuestWithRsvpStatus instance from an ORM model.
         """
+        assert isinstance(obj, GuestModel)
+        assert obj.phone_number
+
+        # Create base guest first
+        base_guest = Guest.from_orm(obj)
+
+        # Add RSVP specific fields
         return GuestWithRsvpStatus(
-            id=data.id,
-            first_name=data.first_name,
-            last_name=data.last_name,
-            has_guest=data.has_guest,
-            guest_id=data.guest_id,
-            menu=MenuChoices(data.menu_choice),
-            dietary_requirements=data.dietary_restrictions,
-            needs_hotel=data.hotel_accommodation,
-            phone=data.phone_number,
-            email=data.email,
-            rsvp_status=RsvpStatus(data.rsvp_status),
-            rsvp_date=data.rsvp_date,
+            **base_guest.model_dump(),  # Use base guest fields
+            rsvp_status=RsvpStatus(obj.rsvp_status),
+            rsvp_date=obj.rsvp_date,
         )

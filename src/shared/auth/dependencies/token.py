@@ -12,7 +12,7 @@ logger = di_container.get_logger()
 
 
 # Custom dependency to get the token from cookies
-async def get_token_from_cookie(request: Request) -> str:
+async def get_token_from_cookie(request: Request) -> str | RedirectResponse:
     token = request.cookies.get("access_token")
     if not token:
         logger.error("No token found in cookies")

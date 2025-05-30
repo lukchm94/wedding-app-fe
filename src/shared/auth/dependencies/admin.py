@@ -9,7 +9,7 @@ from ...database.models.user import User
 from ...server.config import di_container
 from ...utils.__validations import UserRoles
 from ..models.logged_user import LoggedUser
-from .user import get_current_user, user_dependency
+from .user import get_current_user
 
 logger = di_container.get_logger()
 
@@ -18,7 +18,7 @@ logger = di_container.get_logger()
 async def get_current_admin_user(
     current_user: Annotated[LoggedUser, Depends(get_current_user)],
     db: Annotated[Session, Depends(get_db)],
-) -> User:
+) -> User | RedirectResponse:
     """
     Dependency to check if the current user is an admin.
     This will be used to protect admin routes.
