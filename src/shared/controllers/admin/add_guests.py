@@ -30,6 +30,7 @@ class GuestController:
     def create_guest(self, guest_data: GuestCreate) -> Guest:
         self.logger.debug(f"Creating guest: {guest_data.model_dump()}")
         guest = Guest(
+            id=None,  # ID will be set by the database
             first_name=guest_data.guest_data.first_name,
             last_name=guest_data.guest_data.last_name,
             email=guest_data.guest_data.email,
@@ -44,7 +45,9 @@ class GuestController:
 
     def create_plus_one(self, guest_data: GuestCreate, guest_id: int) -> Guest:
         self.logger.debug(f"Creating plus one: {guest_data.model_dump()}")
+        assert guest_data.plus_one_data, "Plus one data must be provided"
         plus_one = Guest(
+            id=None,  # ID will be set by the database
             first_name=guest_data.plus_one_data.first_name,
             last_name=guest_data.plus_one_data.last_name,
             email=guest_data.plus_one_data.email,

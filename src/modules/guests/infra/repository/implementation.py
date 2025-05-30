@@ -1,6 +1,6 @@
 from datetime import datetime
 from logging import Logger
-from typing import Optional, Union
+from typing import Any, Dict, Optional, Union
 
 from sqlalchemy.orm import Session
 from typing_extensions import override
@@ -70,13 +70,14 @@ class GuestRepoImpl(GuestRepository):
         guest: Union[GuestModel, None] = (
             self.db.query(GuestModel).filter(GuestModel.id == guest_id).first()
         )
+        self.logger.debug(f"[{self.__class__}] Retrieved guest: {guest}")
         if not guest:
             return None
         return GuestWithRsvpStatus.from_orm(guest)
 
     @override
     def update_guest(
-        self, guest: Guest, status: RsvpStatus, submitted_at: datetime
+        self, guest: Guest, status: RsvpStatus, submitted_at: Optional[datetime] = None
     ) -> Guest:
         """Update an existing guest."""
         existing_guest = (
@@ -87,10 +88,10 @@ class GuestRepoImpl(GuestRepository):
             raise ValueError(f"Guest with ID {guest.id} not found.")
 
         # Convert the Guest domain model to a dictionary
-        guest_dict: dict = guest.model_dump()
+        guest_dict: Dict[str, Any] = guest.model_dump()
 
         # Map the domain model fields to the ORM model fields
-        orm_guest_dict = {
+        orm_guest_dict: Dict[str, Any] = {
             "first_name": guest_dict["first_name"],
             "last_name": guest_dict["last_name"],
             "email": guest_dict["email"],
@@ -146,7 +147,7 @@ class GuestRepoImpl(GuestRepository):
         return guest
 
     @override
-    def find_in_session(self, first_name: str) -> list[Guest]:
+    def find_in_session(self, first_name: str) -> list[Guest | GuestWithRsvpStatus]:
         """Find a guest by first name."""
         guests: list[GuestModel] = (
             self.db.query(GuestModel)

@@ -1,4 +1,4 @@
-from typing import Annotated, List
+from typing import Annotated, Any, Dict
 
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
@@ -22,13 +22,17 @@ db_session = Annotated[Session, Depends(get_db)]
 logger = di_container.get_logger()
 
 # Store uploaded guests in memory (in a real app, you might use a database or session)
-uploaded_guests = {
+uploaded_guests: Dict[str, Any] = {
     "main_guests": [],
     "plus_ones": [],
     "failed_guests": [],
     "successful_guests": [],
     "error_message": "",
 }
+
+# TODO FIX THIS IT IS SUPER UGLY
+# This is a temporary solution to store uploaded guests in memory.
+# In a real application, you would likely want to store this in a database or session.
 
 
 @router.post("/")
@@ -37,7 +41,7 @@ async def create_guest(
     guest_data: GuestCreate,
     db: db_session,
     current_admin: admin_dependency,
-) -> JSONResponse:
+):
     """
     Create a new guest with optional plus-one.
     """
@@ -98,6 +102,9 @@ async def create_guest(
             )
 
         # Create the plus-one guest
+        assert isinstance(created_guest, Guest)
+        assert isinstance(created_guest.id, int)
+
         plus_one: Guest = guest_controller.create_plus_one(guest_data, created_guest.id)
         logger.info(f"Created Plus-One domain model: {plus_one.model_dump()}")
 

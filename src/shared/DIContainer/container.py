@@ -1,3 +1,5 @@
+from typing import Any, Dict, TypeVar
+
 from sqlalchemy.orm import Session
 
 from src.modules.guests.application.create_guest.create_guest_use_case import (
@@ -16,13 +18,14 @@ from src.modules.guests.infra.repository.implementation import GuestRepoImpl
 from src.modules.users.application.login.login_use_case import LoginUseCase
 from src.modules.users.domain.password_service import PasswordService
 from src.modules.users.domain.token_service import TokenService
-from src.modules.users.domain.user_repository import UserRepository
 from src.modules.users.domain.user_service import UserService
 from src.modules.users.infra.repository.user_repo_impl import UserRepoImpl
 from src.shared.controllers.admin.add_guests import GuestController
 from src.shared.controllers.rsvp.search import SearchController
 from src.shared.database.config import SessionLocal
 from src.shared.utils.logger import Logger, get_logger
+
+T = TypeVar("T")
 
 
 class DIContainer:
@@ -31,7 +34,7 @@ class DIContainer:
     """
 
     def __init__(self):
-        self._services = {}
+        self._services: Dict[str, Any] = {}
 
         # Initialize logger
         self._logger: Logger = get_logger()
@@ -45,19 +48,19 @@ class DIContainer:
         self.register("token_service", TokenService(self._logger))
         self.register("guest_controller", GuestController(self._logger))
 
-    def register(self, name, service):
+    def register(self, name: str, service: Any) -> None:
         """
         Register a service in the container
         """
         self._services[name] = service
 
-    def get(self, name):
+    def get(self, name: str) -> Any:
         """
         Get a service from the container
         """
         return self._services.get(name)
 
-    def build_user_repo(self, db: Session) -> UserRepository:
+    def build_user_repo(self, db: Session) -> UserRepoImpl:
         """
         Build the user repository
         """

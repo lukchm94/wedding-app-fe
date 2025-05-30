@@ -13,7 +13,7 @@ class ExpiredTokenError(Exception):
 class UserNotFoundError(Exception):
     """Exception raised when a user is not found."""
 
-    def __init__(self, username: str):
+    def __init__(self, username: str | None):
         self.username = username
         super().__init__(f"User '{username}' not found.")
 

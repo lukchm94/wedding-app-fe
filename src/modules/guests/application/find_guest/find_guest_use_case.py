@@ -29,12 +29,16 @@ class FindGuestUseCase:
         logger.info(
             f"Searching for guests with guest_id: {guest_id}, first_name: {first_name}, last_name: {last_name}"
         )
-        logger.info(guest_id is not None and isinstance(guest_id, int))
         # If guest_id is provided and it's an integer, search by ID
-        if guest_id is not None and isinstance(guest_id, int):
+        if guest_id is not None and isinstance(guest_id, int):  # type: ignore
             return self.guest_service.get_guest(guest_id)
 
-        guest: GuestWithRsvpStatus = self.guest_service.find_guest_by_name(
+        assert first_name is not None
+        assert isinstance(first_name, str), "First name must be a string"
+        assert last_name is None or isinstance(last_name, str)
+        assert isinstance(last_name, str), "Last name must be a string"
+
+        guest: GuestWithRsvpStatus | None = self.guest_service.find_guest_by_name(
             first_name, last_name
         )
         return guest

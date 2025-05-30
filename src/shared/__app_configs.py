@@ -8,5 +8,5 @@ class TokenTypes(str, ValidationEnum):
 
 
 class TokenConfigs(Enum):
-    algorithm: str = "HS256"
-    default_expiration: int = 30
+    algorithm = "HS256"
+    default_expiration = 30

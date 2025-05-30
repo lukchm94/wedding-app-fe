@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Any, Dict, Optional
 
 from fastapi import Request
 from pydantic import BaseModel, Field
@@ -49,7 +49,7 @@ class FormInput(BaseModel):
             else "Nie potwierdzono obecności"
         )
 
-    def as_dict(self, request: Request) -> dict:
+    def as_dict(self, request: Request) -> Dict[str, Any]:
         """
         Convert the FormInput object to a dictionary.
         """

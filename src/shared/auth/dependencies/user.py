@@ -8,8 +8,9 @@ from ...__app_configs import TokenConfigs
 from ...__exceptions import UserNotFoundError
 from ...__settings import settings
 from ...server.config import di_container
+from ...utils.__validations import UserRoles
 from ..models.logged_user import LoggedUser
-from .token import get_token_from_cookie, token_dependency
+from .token import get_token_from_cookie
 
 logger = di_container.get_logger()
 
@@ -17,7 +18,7 @@ logger = di_container.get_logger()
 # Dependency to get the Logged User
 async def get_current_user(
     token: Annotated[str, Depends(get_token_from_cookie)],
-) -> LoggedUser:
+) -> LoggedUser | RedirectResponse:
     # If token is a RedirectResponse, return it (this means user is not authenticated)
     if isinstance(token, RedirectResponse):
         return token
@@ -29,11 +30,15 @@ async def get_current_user(
             algorithms=[TokenConfigs.algorithm.value],
         )
         username: Union[str, None] = payload.get("sub")
-        user_role: str = payload.get("role")
-        permissions: str = payload.get("permissions")
+        user_role: str = str(payload.get("role"))
+        permissions: str = str(payload.get("permissions"))
         if username is None:
             raise UserNotFoundError(username=username)
-        return LoggedUser(username=username, role=user_role, permissions=permissions)
+        return LoggedUser(
+            username=username,
+            role=UserRoles[user_role.upper()],  # Convert string to enum
+            permissions=permissions,
+        )
 
     except ExpiredSignatureError:
         # Redirect to login page on expired token

@@ -1,4 +1,4 @@
-from typing import Optional, Union
+from typing import Any, Dict, Optional, Union
 
 from fastapi import APIRouter, Depends, Form, Request, status
 from fastapi.responses import HTMLResponse, JSONResponse
@@ -11,7 +11,7 @@ from src.modules.guests.application.save_rsvp import (
 )
 from src.modules.guests.domain.guest import Guest, GuestWithRsvpStatus
 from src.shared.controllers.rsvp.form_input import FormInput
-from src.shared.controllers.rsvp.search import SearchController
+from src.shared.controllers.rsvp.search import RsvpFormData, SearchController
 from src.shared.database.config import get_db
 from src.shared.server.config import di_container, templates
 from src.shared.utils.__validations import MenuChoices, RsvpStatus
@@ -30,7 +30,7 @@ MENU_MAPPING = {
 }
 
 
-def get_menu_choice(menu_value: str) -> str:
+def get_menu_choice(menu_value: str) -> str | None:
     if not menu_value:
         return None
     menu_value = menu_value.lower()
@@ -58,13 +58,15 @@ async def search_guests(
     Returns a list of matching guests.
     """
     search_controller: SearchController = di_container.build_search_controller(db)
-    results: list[Guest] = search_controller.search(first_name, last_name)
+    results: list[GuestWithRsvpStatus] | list[Guest] = search_controller.search(
+        first_name, last_name
+    )
     logger.info(f"Search results: {results}")
     return results
 
 
 @router.get("/form/{guest_id}", response_class=HTMLResponse)
-async def rsvp_form(
+async def rsvp_form(  # type: ignore
     req: Request,
     guest_id: int,
     plus_one_id: Optional[int] = None,
@@ -72,14 +74,14 @@ async def rsvp_form(
 ):
     """Show RSVP form pre-filled with guest data or show submitted RSVP if already confirmed."""
     search_controller: SearchController = di_container.build_search_controller(db)
-    process_rsvp_form: dict = search_controller.process_rsvp_form(
+    process_rsvp_form: RsvpFormData = search_controller.process_rsvp_form(
         req, guest_id, plus_one_id
     )
 
     if not process_rsvp_form:
         return templates.TemplateResponse("rsvp_search.html", {"request": req})
 
-    guest: GuestWithRsvpStatus = process_rsvp_form.get("guest")
+    guest: Union[GuestWithRsvpStatus, None] = process_rsvp_form.get("guest")
     plus_one: Union[GuestWithRsvpStatus, None] = process_rsvp_form.get("plus_one")
 
     if guest and guest.rsvp_status == RsvpStatus.CONFIRMED.value:
@@ -91,7 +93,7 @@ async def rsvp_form(
             status_code=status.HTTP_200_OK,
         )
 
-    return templates.TemplateResponse("rsvp.html", process_rsvp_form)
+    return templates.TemplateResponse("rsvp.html", process_rsvp_form)  # type: ignore
 
 
 @router.post("/form/{guest_id}", response_class=HTMLResponse)
@@ -121,25 +123,30 @@ async def rsvp_submit(
     try:
         save_rsvp_use_case: SaveRSVPUseCase = di_container.build_save_rsvp_use_case(db)
 
-        rsvp_form: RSVPFormData = RSVPFormData(
-            first_name=firstName,
-            last_name=lastName,
-            menu=get_menu_choice(menu),
-            dietary_requirements=dietaryRequirements,
-            phone=phone,
-            email=email,
-            needs_hotel=needsHotel,
-            has_guest=hasGuest,
-            plus_one_first_name=plusOneFirstName,
-            plus_one_last_name=plusOneLastName,
-            plus_one_menu=get_menu_choice(plusOneMenu) if plusOneMenu else None,
-            plus_one_dietary_requirements=plusOneDietaryRequirements,
-            plus_one_phone=plusOnePhone,
-            plus_one_email=plusOneEmail,
-        )
+        menu_choice = get_menu_choice(menu)
+        plus_one_menu_choice = get_menu_choice(plusOneMenu) if plusOneMenu else None
+
+        rsvp_form: Dict[str, Any] = {
+            "first_name": firstName,
+            "last_name": lastName,
+            "menu": menu_choice,
+            "dietary_requirements": dietaryRequirements,
+            "phone": phone,
+            "email": email,
+            "needs_hotel": needsHotel,
+            "has_guest": hasGuest,
+            "plus_one_first_name": plusOneFirstName,
+            "plus_one_last_name": plusOneLastName,
+            "plus_one_menu": plus_one_menu_choice,
+            "plus_one_dietary_requirements": plusOneDietaryRequirements,
+            "plus_one_phone": plusOnePhone,
+            "plus_one_email": plusOneEmail,
+        }
+
+        rsvp_data = RSVPFormData(**rsvp_form)
 
         guests_saved: SavedGuests = save_rsvp_use_case.execute(
-            rsvp_form, guest_id, plus_one_id
+            rsvp_data, guest_id, plus_one_id
         )
 
         return templates.TemplateResponse(
