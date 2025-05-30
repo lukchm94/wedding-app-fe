@@ -1,0 +1,67 @@
+{
+    "itinerary": [
+        {
+            "id": 1,
+            "time": "16:00",
+            "icon": "arrival.png",
+            "title": "Aperitivo",
+            "details": "Zapraszamy Was wszystkich na włoski poczęstunek i processo.\n\nBędzie to czas na przywitanie się i relaks przed ceremonią.\n\nPrzygotujcie się na włoskie smaki i atmosferę! Jeśli chodzi o prosecco beda opcje bezalkoholowe, więc każdy znajdzie coś dla siebie."
+        },
+        {
+            "id": 2,
+            "time": "17:00",
+            "icon": "icon.png",
+            "title": "Ceremonia ślubna",
+            "details": "Spotkamy sie na tarasie nad jeziorem i powiemy sobie tak. \n\nCeremonia będzie miała charakter świecki, ale pełen emocji i radości. \n\nPo ceremonii zapraszamy na wspólne zdjęcia i gratulacje."
+        },
+        {
+            "id": 3,
+            "time": "18:30",
+            "icon": "dinner.png",
+            "title": "Uczta weselna",
+            "details": "Będziemy biesiadować przy stole i delektować się pysznym jedzeniem. \n\nUczta będzie obfita i różnorodna, aby każdy mógł znaleźć coś dla siebie. \n\nNie zabraknie też włoskich akcentów w potrawach!"
+        },
+        {
+            "id": 4,
+            "time": "20:00",
+            "icon": "first_dance.png",
+            "title": "Pierwszy taniec",
+            "details": "Para młoda rozpocznie zabawę na parkiecie swoim pierwszym tańcem. Po nim zapraszamy wszystkich do wspólnej zabawy! \n\nBędzie muzyka, taniec i dużo radości. \n\nPrzygotujcie się na niezapomniane chwile!"
+        },
+        {
+            "id": 5,
+            "time": "21:00",
+            "icon": "supper.png",
+            "title": "Kolacja",
+            "details": "Uczty ciąg dalszy! W okolicach godziny 20 serwujemy późną kolację z przekąskami i deserami. \n\nBędzie to czas na relaks i delektowanie się smakołykami. \n\nNie zapomnijcie spróbować naszych włoskich specjałów!"
+        },
+        {
+            "id": 6,
+            "time": "23:00",
+            "icon": "cake.png",
+            "title": "Tort i fajerwerki",
+            "details": "Czas na tort weselny! Będzie pysznie i słodko. Po torcie zapraszamy na pokaz fajerwerków nad jeziorem. \n\nTo będzie niezapomniany moment, który zakończy część oficjalną wieczoru."
+        },
+        {
+            "id": 7,
+            "time": "3:00",
+            "icon": "disco.png",
+            "title": "Zaczynamy grać Ich Troje",
+            "details": "Zabawa trwa do białego rana! Będzie muzyka, taniec i dużo radości. \n\nPrzygotujcie się na niezapomniane chwile na parkiecie. \n\nNie zabraknie też włoskich akcentów w muzyce!"
+        },
+        {
+            "id": 8,
+            "time": "5:00",
+            "icon": "swimming.png",
+            "title": "Kąpiel w jeziorze",
+            "details": "Ostatnia szansa na orzeźwiającą kąpiel w jeziorze przed końcem imprezy. \n\nZabierzcie ze sobą stroje kąpielowe i ręczniki! \n\nTo będzie idealny sposób na zakończenie wieczoru w letniej atmosferze."
+        },
+        {
+            "id": 9,
+            "time": "11:00",
+            "icon": "breakfast.png",
+            "title": "Niedzielne śniadanie",
+            "details": "Zapraszamy na wspólne śniadanie w niedzielę rano. Będzie czas na relaks i wspomnienia. \n\nTo idealna okazja, aby podzielić się wrażeniami z wesela i spędzić ostatnie chwile razem. \n\nNie zapomnijcie spróbować naszych włoskich specjałów na śniadanie!"            
+        }
+    ]
+}
