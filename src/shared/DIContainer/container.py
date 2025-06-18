@@ -15,6 +15,17 @@ from src.modules.guests.application.update_guest.update_guest_use_case import (
 from src.modules.guests.domain.repository import GuestRepository
 from src.modules.guests.domain.service import GuestService
 from src.modules.guests.infra.repository.implementation import GuestRepoImpl
+from src.modules.itinerary.application.use_case.show_active_itinerary import (
+    ShowActiveItineraryUseCase,
+)
+from src.modules.itinerary.application.use_case.upload_itinerary import (
+    UploadItineraryUseCase,
+)
+from src.modules.itinerary.domain.itinerary_service import ItineraryService
+from src.modules.itinerary.infrastructure.repository.os.os_itinerary_impl import (
+    OsItineraryRepositoryImplementation,
+    OsPaths,
+)
 from src.modules.users.application.login.login_use_case import LoginUseCase
 from src.modules.users.domain.password_service import PasswordService
 from src.modules.users.domain.token_service import TokenService
@@ -25,10 +36,10 @@ from src.shared.controllers.admin.update_itinerary import ItineraryController
 from src.shared.controllers.itinerary.get_elements import ItineraryGetElementsController
 from src.shared.controllers.rsvp.search import SearchController
 from src.shared.database.config import SessionLocal
-
-# from src.shared.routers.routes import Routes
 from src.shared.templates.paths import HtmlPaths
 from src.shared.utils.logger import Logger, get_logger
+
+from .registered_services import RegisteredServices
 
 T = TypeVar("T")
 
@@ -46,15 +57,61 @@ class DIContainer:
         self._logger.debug("DIContainer initialized")
 
         # Initialize database connection
-        self.register("db_session", SessionLocal)
+        self.register(RegisteredServices.DB_SESSION.value, SessionLocal)
 
         # Initialize domain services
-        self.register("password_service", PasswordService(self._logger))
-        self.register("token_service", TokenService(self._logger))
-        self.register("guest_controller", GuestController(self._logger))
-        # self.register("routes", Routes())
-        self.register("html_paths", HtmlPaths())
-        self.register("itinerary_controller", ItineraryController(self._logger))
+        self.register(
+            RegisteredServices.PASSWORD_SERVICE.value, PasswordService(self._logger)
+        )
+
+        self.register(
+            RegisteredServices.TOKEN_SERVICE.value, TokenService(self._logger)
+        )
+        self.register(
+            RegisteredServices.GUEST_CONTROLLER.value, GuestController(self._logger)
+        )
+        self.register(RegisteredServices.HTML_PATHS.value, HtmlPaths())
+        self.register(RegisteredServices.SETTINGS.value, self._logger)
+        self.register(
+            RegisteredServices.OS_PATHS.value,
+            OsPaths(self.get(RegisteredServices.SETTINGS.value)),
+        )
+
+        self.register(
+            RegisteredServices.ITINERARY_REPO_IMPL.value,
+            OsItineraryRepositoryImplementation(
+                self._logger, self.get(RegisteredServices.OS_PATHS.value)
+            ),
+        )
+        self.register(
+            RegisteredServices.ITINERARY_SERVICE.value,
+            ItineraryService(
+                self.get(RegisteredServices.ITINERARY_REPO_IMPL.value), self._logger
+            ),
+        )
+
+        self.register(
+            RegisteredServices.SHOW_ACTIVE_USE_CASE.value,
+            ShowActiveItineraryUseCase(
+                self.get(RegisteredServices.ITINERARY_SERVICE.value),
+                self._logger,
+            ),
+        )
+
+        self.register(
+            RegisteredServices.UPLOAD_ITINERARY_USE_CASE.value,
+            UploadItineraryUseCase(
+                self.get(RegisteredServices.ITINERARY_SERVICE.value), self._logger
+            ),
+        )
+        self.register(
+            RegisteredServices.ITINERARY_CONTROLLER.value,
+            ItineraryController(
+                self._logger,
+                self.get(RegisteredServices.UPLOAD_ITINERARY_USE_CASE.value),
+                self.get(RegisteredServices.SHOW_ACTIVE_USE_CASE.value),
+            ),
+        )
 
     def register(self, name: str, service: Any) -> None:
         """
@@ -95,8 +152,8 @@ class DIContainer:
         user_service: UserService = UserService(self._logger, user_repo)
         login_use_case: LoginUseCase = LoginUseCase(
             user_service=user_service,
-            password_service=self.get("password_service"),
-            jwt_service=self.get("token_service"),
+            password_service=self.get(RegisteredServices.PASSWORD_SERVICE.value),
+            jwt_service=self.get(RegisteredServices.TOKEN_SERVICE.value),
             logger=self._logger,
         )
         return login_use_case

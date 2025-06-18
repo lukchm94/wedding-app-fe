@@ -18,3 +18,4 @@ class UploadItineraryUseCase:
         :return: The result of the upload operation.
         """
         self.logger.debug(f"Uploading itinerary: {[d.model_dump() for d in data]}")
+        self.service.add_itinerary(data)
