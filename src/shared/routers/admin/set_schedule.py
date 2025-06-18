@@ -20,10 +20,6 @@ HTML_TEMPLATES: HtmlPaths = di_container.get("html_paths")
 logger: Logger = di_container.get_logger()
 
 
-logger.info(f"PATHS: {HTML_TEMPLATES.model_dump()}")
-# logger.info(f"PATHS: {HtmlPaths.ADMIN.SCHEDULE}")
-
-
 @router.get("/", response_class=HTMLResponse)
 async def admin_dashboard(
     request: Request,
