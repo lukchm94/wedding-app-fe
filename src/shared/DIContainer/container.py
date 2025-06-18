@@ -21,9 +21,13 @@ from src.modules.users.domain.token_service import TokenService
 from src.modules.users.domain.user_service import UserService
 from src.modules.users.infra.repository.user_repo_impl import UserRepoImpl
 from src.shared.controllers.admin.add_guests import GuestController
+from src.shared.controllers.admin.update_itinerary import ItineraryController
 from src.shared.controllers.itinerary.get_elements import ItineraryGetElementsController
 from src.shared.controllers.rsvp.search import SearchController
 from src.shared.database.config import SessionLocal
+
+# from src.shared.routers.routes import Routes
+from src.shared.templates.paths import HtmlPaths
 from src.shared.utils.logger import Logger, get_logger
 
 T = TypeVar("T")
@@ -48,6 +52,9 @@ class DIContainer:
         self.register("password_service", PasswordService(self._logger))
         self.register("token_service", TokenService(self._logger))
         self.register("guest_controller", GuestController(self._logger))
+        # self.register("routes", Routes())
+        self.register("html_paths", HtmlPaths())
+        self.register("itinerary_controller", ItineraryController(self._logger))
 
     def register(self, name: str, service: Any) -> None:
         """
