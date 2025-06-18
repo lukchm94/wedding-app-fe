@@ -8,7 +8,7 @@ from src.shared.auth.authenticate import admin_dependency
 from src.shared.database.config import get_db
 from src.shared.server.config import templates
 
-router = APIRouter(prefix="/dashboard", tags=["admin"])
+router = APIRouter(prefix="/set-schedule", tags=["admin"])
 db_session = Annotated[Session, Depends(get_db)]
 
 

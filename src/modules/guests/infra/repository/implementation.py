@@ -15,6 +15,7 @@ class GuestRepoImpl(GuestRepository):
     def __init__(self, db: Session, logger: Logger) -> None:
         self.db: Session = db
         self.logger: Logger = logger
+        self.logger.info(f"[{self.__class__.__name__}] initialized.")
 
     @override
     def create_guest(self, guest: Guest) -> Guest:
