@@ -1,0 +1,162 @@
+{% extends "admin/header.html" %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-6">
+
+    <h1 class="text-3xl font-bold mb-6 text-gray-800">Manage Schedule</h1>
+    
+    <div class="overflow-x-auto">
+        <form id="scheduleForm">
+            <div id="scheduleEntries" class="space-y-4">
+                <!-- Schedule entries will be added here -->
+                <div class="schedule-entry bg-white rounded-lg shadow-md p-4 mb-4">
+                    <!-- Title -->
+                    <div class="relative">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Title</label>
+                        <input type="text" name="title[]" placeholder="Enter title" required
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <br>
+                    <!-- Details -->
+                    <div class="relative">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Details</label>
+                        <input type="text" name="details[]" placeholder="Enter details of the event" required
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <br>
+                    <!-- Time and Icon -->
+                    <div class="relative">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Select time</label>
+                        <input type="time" name="time[]" placeholder="12:00" required
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div> 
+                    <br>
+                    <!-- Icon Selection -->
+                    <div class="relative">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Select an icon</label>
+                        <select name="icon[]" required
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                            <option value="ring.png">Ring 💍</option>
+                            <option value="cheers.png">Cheers 🥂</option>
+                            <option value="dining.png">Dining 🍽️</option>
+                            
+                        </select>
+                    </div>
+                    <br>
+                    <!-- Remove Button - Only show for cards after the first one -->
+                    <div class="mt-4 flex justify-end">
+                        <button type="button" class="remove-entry text-red-600 hover:text-red-800 text-sm font-medium hidden">
+                            Remove entry
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+
+            <!-- Action Buttons -->
+            <div class="mt-6 flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
+                <button id="addEntry" type="button"
+                    class="inline-flex items-center justify-center px-6 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                    Add Entry
+                </button>
+                <button id="saveItinerary" type="button"
+                    class="inline-flex items-center justify-center px-6 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    Save Itinerary
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+<script>
+    let entryCount = 1;
+
+    document.getElementById('addEntry').addEventListener('click', function() {
+        const container = document.getElementById('scheduleEntries');
+        const template = container.children[0].cloneNode(true);
+        
+        // Reset form values
+        template.querySelectorAll('input, select').forEach(input => {
+            input.value = '';
+        });
+        
+        // Update IDs and names
+        template.querySelectorAll('[id]').forEach(element => {
+            element.id = element.id.replace('_0', `_${entryCount}`);
+        });
+        template.querySelectorAll('label[for]').forEach(label => {
+            label.setAttribute('for', label.getAttribute('for').replace('_0', `_${entryCount}`));
+        });
+
+        // Show remove button
+        const removeBtn = template.querySelector('.remove-entry');
+        removeBtn.classList.remove('hidden');
+        
+        // Add remove button functionality
+        removeBtn.addEventListener('click', function() {
+            template.remove();
+        });
+
+        container.appendChild(template);
+        entryCount++;
+    });
+
+    document.getElementById('saveItinerary').addEventListener('click', async function() {
+        const button = this;
+        button.disabled = true;
+        button.innerHTML = '<svg class="animate-spin h-5 w-5 mr-2" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Saving...';
+
+        const itinerary = [];
+        
+        document.querySelectorAll('.schedule-entry').forEach(entry => {
+            itinerary.push({
+                title: entry.querySelector('input[name="title[]"]').value,
+                details: entry.querySelector('input[name="details[]"]').value,
+                time: entry.querySelector('input[name="time[]"]').value,
+                icon: entry.querySelector('select[name="icon[]"]').value
+            });
+        });
+
+        const payload = { schedule: itinerary };
+        
+        try {
+            console.log('Sending payload:', JSON.stringify(payload, null, 2));
+            
+            const response = await fetch('/admin/set-schedule/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+            
+            console.log('Response status:', response.status);
+            
+            const responseData = await response.json();
+            console.log('Server response:', responseData);
+            
+            if (response.ok) {
+                // Store the formatted schedule items in sessionStorage
+                const scheduleItems = responseData.items || [];
+                sessionStorage.setItem('savedSchedule', JSON.stringify(scheduleItems));
+                window.location.href = '/admin/set-schedule/success';
+            } else {
+                console.error('Server error response:', responseData);
+                window.location.href = '/admin/set-schedule/failed';
+            }
+        } catch (error) {
+            console.error('Request error:', error);
+            window.location.href = '/admin/set-schedule/failed';
+        } finally {
+            button.disabled = false;
+            button.innerHTML = '<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>Save Itinerary';
+        }
+    });
+</script>
+{% endblock %}

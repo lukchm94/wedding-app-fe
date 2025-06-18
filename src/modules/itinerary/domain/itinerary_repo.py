@@ -23,7 +23,7 @@ class ItineraryRepository(ABC):
         pass
 
     @abstractmethod
-    def get_all_itineraries(self) -> list[Itinerary]:
+    def get_all_itineraries(self, show_active: bool) -> list[Itinerary]:
         """
         Retrieve all itineraries.
 
@@ -65,14 +65,5 @@ class ItineraryRepository(ABC):
 
         :param itinerary: An Itinerary object with updated information.
         :return: The updated Itinerary object.
-        """
-        pass
-
-    @abstractmethod
-    def get_all_active(self) -> list[Itinerary]:
-        """
-        Retrieve all active itineraries.
-
-        :return: A list of active Itinerary objects.
         """
         pass

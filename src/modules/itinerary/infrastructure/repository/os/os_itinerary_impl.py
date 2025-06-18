@@ -46,13 +46,13 @@ class OsItineraryRepositoryImplementation(ItineraryRepository):
             f"[{self.__class__.__name__}] Either id or title must be provided to get_itinerary. Received id: {id}, title: {title}"
         )
 
-    def get_all_itineraries(self) -> list[Itinerary]:
+    def get_all_itineraries(self, show_active: bool) -> list[Itinerary]:
         self.logger.debug(f"[{self.__class__.__name__}] get_all_itineraries called.")
         existing_itineraries: list[Itinerary] = self._read_and_convert_to_itineraries()
         self.logger.info(
             f"[{self.__class__.__name__}] Found {len(existing_itineraries)} itineraries."
         )
-        return existing_itineraries
+        return [i for i in existing_itineraries if i.is_active == show_active]
 
     def add_itinerary(self, itinerary: Itinerary) -> Itinerary:
         current_itineraries: list[Itinerary] = self._read_and_convert_to_itineraries()

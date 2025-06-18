@@ -1,0 +1,37 @@
+{% extends "admin/header.html" %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-100 flex flex-col items-center justify-center">
+    <div class="bg-white p-8 rounded-lg shadow-lg max-w-md w-full text-center">
+        <div class="mb-6">
+            <svg class="mx-auto h-16 w-16 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 48 48">
+                <circle class="opacity-25" cx="24" cy="24" r="20" stroke-width="4"/>
+                <path class="opacity-75" stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M14 24l8 8 16-16"/>
+            </svg>
+        </div>
+        
+        <h2 class="text-2xl font-bold text-gray-800 mb-4">
+            Itinerary Updated Successfully
+            <div class="relative">
+                 <ul class="space-y-3">
+                {% for element in itinerary %}
+                <li class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div>
+                        <span class="font-medium">{{ element }}</span>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+            </div>
+        </h2>
+        
+        
+        <div class="space-y-4">
+            <a href="/admin/dashboard" 
+                class="block w-full bg-gray-200 text-gray-700 px-6 py-3 rounded-md hover:bg-gray-300 font-medium">
+                Back to Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %} 

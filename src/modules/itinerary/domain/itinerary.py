@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Union
+
 from pydantic import BaseModel, Field
 
 
@@ -8,7 +10,9 @@ class Itinerary(BaseModel):
     Represents a row in an itinerary.
     """
 
-    id: int = Field(..., description="Unique identifier for the itinerary row")
+    id: Union[int, None] = Field(
+        ..., description="Unique identifier for the itinerary row"
+    )
     time: str = Field(..., description="Time of the event in HH:MM format")
     title: str = Field(..., description="Title of the event")
     details: str = Field(..., description="Description of the event")
